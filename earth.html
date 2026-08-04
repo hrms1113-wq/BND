@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USGS 스타일 실시간 지진 지도</title>
+    <title>USGS 실시간 지진 지도 (판의 경계 포함)</title>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Esri Leaflet (판의 경계 레이어용) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -117,90 +120,71 @@
         #map {
             flex: 1;
             height: 100%;
-            background-color: #e5e5e5; /* USGS 백그라운드 색상 */
+            background-color: #e5e5e5;
         }
 
-        /* 반응형 (모바일) */
         @media (max-width: 768px) {
-            body {
-                flex-direction: column-reverse;
-            }
-            #sidebar {
-                width: 100%;
-                height: 40%;
-            }
-            #map {
-                height: 60%;
-            }
+            body { flex-direction: column-reverse; }
+            #sidebar { width: 100%; height: 40%; }
+            #map { height: 60%; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 좌측 목록 (사이드바) -->
+    <!-- 좌측 사이드바 -->
     <div id="sidebar">
         <div class="header">
             <h2>USGS 실시간 지진 현황</h2>
             <p id="summary-info">데이터 불러오는 중...</p>
             <div id="last-updated" class="update-tag">실시간 수신 중</div>
         </div>
-        <div class="eq-list" id="earthquake-list">
-            <!-- JS로 항목 삽입됨 -->
-        </div>
+        <div class="eq-list" id="earthquake-list"></div>
     </div>
 
     <!-- 우측 지도 영역 -->
     <div id="map"></div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // 1. 지도 초기화 (USGS 기본 뷰포트)
+        // 1. 지도 초기화
         const map = L.map('map', {
             center: [20, 0],
             zoom: 2,
-            minZoom: 2,
-            maxZoom: 10
+            minZoom: 2
         });
 
-        // 2. USGS 느낌의 회색톤 배경 타일 (CartoDB Positron No Labels)
+        // 2. USGS 스타일 배경 타일 (CartoDB Positron)
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            attribution: '&copy; OpenStreetMap &copy; CARTO',
             subdomains: 'abcd',
             maxZoom: 19
         }).addTo(map);
 
-        // 3. 사진과 동일한 USGS 정밀 판 경계 데이터 (GeoJSON)
-        const PLATES_URL = 'https://raw.githubusercontent.com/fraxken/tectonicplates/master/GeoJSON/PB2002_boundaries.json';
+        // 3. ⭐ ESRI 공식 판의 경계(Tectonic Plate Boundaries) 레이어 직접 추가
+        // CORS 문제 없이 완벽하게 빨간색 선으로 그려집니다.
+        L.esri.featureLayer({
+            url: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/Tectonic_Plate_Boundaries/FeatureServer/0',
+            style: function () {
+                return {
+                    color: '#ff0000',  // 빨간색 선 (사진과 동일)
+                    weight: 2,          // 선 두께
+                    opacity: 0.8
+                };
+            }
+        }).addTo(map);
 
-        fetch(PLATES_URL)
-            .then(res => res.json())
-            .then(plateData => {
-                L.geoJSON(plateData, {
-                    style: function(feature) {
-                        // 사진처럼 선명한 붉은색 판 경계선 표현
-                        return {
-                            color: '#d32f2f',  // 빨간색
-                            weight: 1.8,       // 선 두께
-                            opacity: 0.9       // 투명도
-                        };
-                    }
-                }).addTo(map);
-            })
-            .catch(err => console.error('판의 경계 로드 실패:', err));
-
-        // 지진 규모별 색상 (USGS 표준 칼라)
+        // 지진 규모별 색상
         function getColor(mag) {
-            return mag >= 6.0 ? '#bd0026' :
-                   mag >= 5.0 ? '#f03b20' :
-                   mag >= 4.0 ? '#fd8d3c' :
-                   mag >= 3.0 ? '#feb24c' : '#fed976';
+            return mag >= 6.0 ? '#d32f2f' :
+                   mag >= 5.0 ? '#f57c00' :
+                   mag >= 4.0 ? '#fbc02d' :
+                   mag >= 3.0 ? '#388e3c' : '#1976d2';
         }
 
         const markers = {};
         const USGS_API_URL = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson';
 
-        // 4. 실시간 지진 데이터 수신 함수
+        // 4. 실시간 지진 데이터 로드
         function fetchEarthquakeData() {
             fetch(USGS_API_URL)
                 .then(response => response.json())
@@ -224,14 +208,14 @@
                         const place = props.place;
                         const time = new Date(props.time).toLocaleString('ko-KR');
 
-                        // 지진 원형 마커 생성
+                        // 마커 표시
                         if (!markers[eqId]) {
                             const marker = L.circleMarker([lat, lng], {
                                 radius: Math.max(mag * 2.2, 3.5),
                                 fillColor: getColor(mag),
-                                color: '#e65100',
+                                color: '#ffffff',
                                 weight: 1,
-                                opacity: 0.9,
+                                opacity: 1,
                                 fillOpacity: 0.85
                             }).addTo(map);
 
@@ -247,7 +231,7 @@
                             markers[eqId] = marker;
                         }
 
-                        // 목록 추가
+                        // 사이드바 리스트
                         const eqItem = document.createElement('div');
                         eqItem.className = 'eq-item';
                         eqItem.innerHTML = `
@@ -271,7 +255,7 @@
                 .catch(error => console.error('지진 데이터 불러오기 오류:', error));
         }
 
-        // 최초 1회 실행 및 60초 주기 자동 갱신
+        // 최초 호출 및 60초 주기 자동 갱신
         fetchEarthquakeData();
         setInterval(fetchEarthquakeData, 60000);
     </script>
