@@ -35,6 +35,7 @@ body{
 }
 
 
+
 /* 별 */
 
 .star{
@@ -62,7 +63,7 @@ body{
 
 
 
-/* 오프닝 문구 */
+/* 오프닝 */
 
 .intro{
 
@@ -100,11 +101,9 @@ body{
 
     100%{
         opacity:0;
-        display:none;
     }
 
 }
-
 
 
 
@@ -119,11 +118,7 @@ body{
 
     font-size:100px;
 
-
-    animation:
-
-    fly 4s forwards;
-
+    animation:fly 4s forwards;
 
 }
 
@@ -134,11 +129,9 @@ body{
         left:-300px;
     }
 
-
     70%{
         left:45%;
     }
-
 
     100%{
         left:45%;
@@ -148,7 +141,8 @@ body{
 
 
 
-/* 메인 */
+
+/* 메인 화면 */
 
 .main{
 
@@ -183,6 +177,7 @@ body{
 
 
 
+
 .title{
 
     font-size:80px;
@@ -190,10 +185,8 @@ body{
     color:#70eaff;
 
     text-shadow:
-
     0 0 15px cyan,
     0 0 40px cyan;
-
 
 }
 
@@ -209,8 +202,8 @@ body{
 
 
 
-button{
 
+button{
 
     margin-top:50px;
 
@@ -222,18 +215,13 @@ button{
 
     cursor:pointer;
 
-
     font-size:22px;
 
     color:white;
 
     background:#008cff;
 
-
-    box-shadow:
-
-    0 0 20px cyan;
-
+    box-shadow:0 0 20px cyan;
 
     transition:.3s;
 
@@ -243,15 +231,12 @@ button{
 
 button:hover{
 
-
     transform:scale(1.1);
 
-    box-shadow:
-
-    0 0 40px cyan;
-
+    box-shadow:0 0 40px cyan;
 
 }
+
 
 
 
@@ -260,6 +245,28 @@ button:hover{
     margin-top:25px;
 
     color:#aaa;
+
+}
+
+
+
+/* 제작자 */
+
+.creator{
+
+    position:absolute;
+
+    bottom:25px;
+
+    width:100%;
+
+    text-align:center;
+
+    color:#aaa;
+
+    font-size:16px;
+
+    letter-spacing:2px;
 
 }
 
@@ -275,7 +282,6 @@ button:hover{
 <div class="space" id="space"></div>
 
 
-<!-- 영화 시작 화면 -->
 
 <div class="intro">
 
@@ -285,7 +291,6 @@ A NEW GALAXY AWAITS...
 
 
 
-<!-- 우주선 -->
 
 <div class="ship">
 
@@ -294,9 +299,6 @@ A NEW GALAXY AWAITS...
 </div>
 
 
-
-
-<!-- 메인 화면 -->
 
 
 <div class="main">
@@ -309,6 +311,7 @@ SPACE EXPLORER
 </div>
 
 
+
 <div class="sub">
 
 GALAXY ADVENTURE
@@ -316,11 +319,13 @@ GALAXY ADVENTURE
 </div>
 
 
+
 <button onclick="startGame()">
 
 🚀 START MISSION
 
 </button>
+
 
 
 <div class="message">
@@ -335,17 +340,19 @@ GALAXY ADVENTURE
 
 
 
+<div class="creator">
+
+Created by 우다흰
+
+</div>
 
 
-<!-- 음악 -->
+
 
 <audio id="bgm" loop>
 
-<!-- 여기에 음악 파일 넣기 -->
-
-<!-- 예 : music/space.mp3 -->
-
 </audio>
+
 
 
 
@@ -392,32 +399,26 @@ for(let i=0;i<250;i++){
 
 
 
-// 클릭하면 음악 시작
+// 음악 시작
 
 document.body.addEventListener("click",()=>{
-
 
     const bgm=document.getElementById("bgm");
 
     bgm.play();
-
 
 });
 
 
 
 
-// 게임 시작
+
+// 메인 게임 연결
 
 function startGame(){
 
 
-    alert("MISSION START 🚀");
-
-
-    // 나중에 연결
-
-    // location.href="game.html";
+    location.href="main.html";
 
 
 }
