@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>실시간 지진 현황 지도 (자동 업데이트)</title>
+    <title>실시간 지진 및 판의 경계 지도</title>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
@@ -119,6 +119,25 @@
             height: 100%;
         }
 
+        /* 범례 스타일 */
+        .legend {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 14px;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: #333;
+        }
+        .legend-line {
+            display: inline-block;
+            width: 20px;
+            height: 3px;
+            background-color: #ff0000;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
         /* 반응형 (모바일) */
         @media (max-width: 768px) {
             body {
@@ -160,10 +179,35 @@
         // 2. 타일 레이어 추가
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
-            attribution: '© OpenStreetMap contributors | Data: USGS'
+            attribution: '© OpenStreetMap contributors | Data: USGS, Hugo Ahlenius'
         }).addTo(map);
 
-        // 색상 지정 함수
+        // 3. 판의 경계(Tectonic Plates) 데이터 로드 및 시각화
+        const PLATES_URL = 'https://raw.githubusercontent.com/fraxken/tectonicplates/master/GeoJSON/PB2002_boundaries.json';
+
+        fetch(PLATES_URL)
+            .then(response => response.json())
+            .then(plateData => {
+                L.geoJSON(plateData, {
+                    style: {
+                        color: '#e74c3c', // 이미지와 동일한 붉은색 선
+                        weight: 2,
+                        opacity: 0.85
+                    }
+                }).addTo(map);
+            })
+            .catch(err => console.error('판의 경계 데이터 불러오기 실패:', err));
+
+        // 4. 범례(Legend) 추가
+        const legend = L.control({ position: 'bottomright' });
+        legend.onAdd = function () {
+            const div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = '<div><span class="legend-line"></span><b>판의 경계 (Tectonic Plates)</b></div>';
+            return div;
+        };
+        legend.addTo(map);
+
+        // 규모별 색상 반환 함수
         function getColor(mag) {
             return mag >= 6.0 ? '#d32f2f' :
                    mag >= 5.0 ? '#f57c00' :
@@ -171,11 +215,11 @@
                    mag >= 3.0 ? '#388e3c' : '#1976d2';
         }
 
-        // 마커 및 UI 관리를 위한 객체
+        // 지진 마커 및 정보 관리 객체
         const markers = {};
         const USGS_API_URL = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson';
 
-        // 3. 지진 데이터 가져오는 함수
+        // 5. 지진 데이터 가져오는 함수
         function fetchEarthquakeData() {
             fetch(USGS_API_URL)
                 .then(response => response.json())
@@ -201,7 +245,7 @@
                         const place = props.place;
                         const time = new Date(props.time).toLocaleString('ko-KR');
 
-                        // 이미 존재하는 마커가 없으면 새로 생성 (중복 그리기 방지)
+                        // 마커가 없으면 새로 그려주고 기존에 있으면 그대로 유지
                         if (!markers[eqId]) {
                             const marker = L.circleMarker([lat, lng], {
                                 radius: Math.max(mag * 2.5, 4),
@@ -224,7 +268,7 @@
                             markers[eqId] = marker;
                         }
 
-                        // 사이드바 엘리먼트 새로 채우기
+                        // 사이드바 항목 생성
                         const eqItem = document.createElement('div');
                         eqItem.className = 'eq-item';
                         eqItem.innerHTML = `
@@ -245,14 +289,13 @@
                         listContainer.appendChild(eqItem);
                     });
                 })
-                .catch(error => console.error('데이터 업데이트 실패:', error));
+                .catch(error => console.error('지진 데이터 업데이트 실패:', error));
         }
 
         // 최초 1회 실행
         fetchEarthquakeData();
 
-        // 60초(60,000ms)마다 데이터 자동 주기적 갱신
-        // USGS 서버 본체도 약 1~5분 단위로 갱신되므로 60초가 가장 적절합니다.
+        // 60초마다 실시간 지진 자동 업데이트
         setInterval(fetchEarthquakeData, 60000);
     </script>
 </body>
