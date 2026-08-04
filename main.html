@@ -61,7 +61,6 @@ body{
 
 
 
-
 /* 제목 */
 
 .title{
@@ -141,7 +140,6 @@ body{
 
 
 
-
 /* 메뉴 */
 
 .menu{
@@ -161,6 +159,7 @@ body{
     gap:20px;
 
 }
+
 
 
 
@@ -203,6 +202,7 @@ button:hover{
 
 
 
+
 /* 우주선 정보 */
 
 .status{
@@ -233,6 +233,7 @@ button:hover{
 
 
 
+
 /* 제작자 */
 
 .creator{
@@ -250,7 +251,6 @@ button:hover{
 }
 
 
-
 </style>
 
 
@@ -261,9 +261,7 @@ button:hover{
 
 
 
-
 <script>
-
 
 // 별 생성
 
@@ -301,17 +299,7 @@ for(let i=0;i<200;i++){
 }
 
 
-
-</script>
-
-
-
-
-
-
-
-
-<div class="title">
+</script><div class="title">
 
 
 <h1>
@@ -335,15 +323,11 @@ for(let i=0;i<200;i++){
 
 
 
-
-
 <div class="ship">
 
 🚀
 
 </div>
-
-
 
 
 
@@ -422,7 +406,6 @@ for(let i=0;i<200;i++){
 
 
 
-
 <div class="menu">
 
 
@@ -440,6 +423,13 @@ for(let i=0;i<200;i++){
 
 </button>
 
+
+
+<button onclick="earth()">
+
+🌍 지진 현황
+
+</button>
 
 
 </div>
@@ -463,11 +453,10 @@ Created by 우다흰
 
 
 
-
 <script>
 
 
-// 게임 이동
+// 게임 시작
 
 function startGame(){
 
@@ -477,7 +466,8 @@ function startGame(){
 
 
 
-// 업그레이드 이동
+
+// 우주선 관리
 
 function upgrade(){
 
@@ -489,11 +479,21 @@ function upgrade(){
 
 
 
+// 지진 현황 이동
+
+function earth(){
+
+    location.href="earth.html";
+
+}
+
+
+
+
 
 // ======================
-// 업그레이드 데이터 불러오기
+// 저장 데이터 불러오기
 // ======================
-
 
 
 let laser =
@@ -511,6 +511,7 @@ localStorage.getItem("engine") || 1;
 
 let crystal =
 localStorage.getItem("crystal") || 0;
+
 
 
 
@@ -537,7 +538,6 @@ crystal;
 
 
 </script>
-
 
 
 
