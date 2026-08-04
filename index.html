@@ -1,1 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Space Explorer Game</title>
 
+<style>
+body{
+    margin:0;
+    overflow:hidden;
+    background:#000814;
+}
+
+canvas{
+    display:block;
+    margin:auto;
+    background:linear-gradient(#020111,#06162f,#0a2540);
+}
+
+#score{
+    position:absolute;
+    top:15px;
+    left:20px;
+    color:white;
+    font-size:28px;
+    font-family:Arial;
+}
+</style>
+</head>
+
+<body>
+
+<div id="score">⭐ 점수 : 0</div>
+
+<canvas id="game" width="900" height="600"></canvas>
+
+<script>
+
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+let score=0;
+
+const ship={
+    x:450,
+    y:300,
+    size:20,
+    speed:5
+};
+
+const star={
+    x:100,
+    y:100,
+    size:12
+};
+
+const asteroid={
+    x:50,
+    y:50,
+    size:25,
+    dx:3,
+    dy:3
+};
+
+const keys={};
+
+document.addEventListener("keydown",(e)=>{
+    keys[e.key]=true;
+});
+
+document.addEventListener("keyup",(e)=>{
+    keys[e.key]=false;
+});
+
+function randomStar(){
+
+    star.x=Math.random()*(canvas.width-40)+20;
+    star.y=Math.random()*(canvas.height-40)+20;
+
+}
+
+function update(){
+
+    if(keys["ArrowLeft"]) ship.x-=ship.speed;
+    if(keys["ArrowRight"]) ship.x+=ship.speed;
+    if(keys["ArrowUp"]) ship.y-=ship.speed;
+    if(keys["ArrowDown"]) ship.y+=ship.speed;
+
+    ship.x=Math.max(ship.size,Math.min(canvas.width-ship.size,ship.x));
+    ship.y=Math.max(ship.size,Math.min(canvas.height-ship.size,ship.y));
+
+    asteroid.x+=asteroid.dx;
+    asteroid.y+=asteroid.dy;
+
+    if(asteroid.x<asteroid.size || asteroid.x>canvas.width-asteroid.size)
+        asteroid.dx*=-1;
+
+    if(asteroid.y<asteroid.size || asteroid.y>canvas.height-asteroid.size)
+        asteroid.dy*=-1;
+
+    let d=Math.hypot(ship.x-star.x,ship.y-star.y);
+
+    if(d<ship.size+star.size){
+
+        score++;
+        document.getElementById("score").innerHTML="⭐ 점수 : "+score;
+        randomStar();
+
+    }
+
+    let hit=Math.hypot(ship.x-asteroid.x,ship.y-asteroid.y);
+
+    if(hit<ship.size+asteroid.size){
+
+        alert("💥 게임 오버!\n최종 점수 : "+score);
+        location.reload();
+
+    }
+
+}
+
+function drawBackground(){
+
+    ctx.fillStyle="#000814";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle="white";
+
+    for(let i=0;i<100;i++){
+
+        ctx.fillRect(Math.random()*900,Math.random()*600,2,2);
+
+    }
+
+}
+
+function drawShip(){
+
+    ctx.fillStyle="cyan";
+
+    ctx.beginPath();
+    ctx.moveTo(ship.x,ship.y-20);
+    ctx.lineTo(ship.x-15,ship.y+15);
+    ctx.lineTo(ship.x+15,ship.y+15);
+    ctx.closePath();
+    ctx.fill();
+
+}
+
+function drawStar(){
+
+    ctx.fillStyle="yellow";
+
+    ctx.beginPath();
+    ctx.arc(star.x,star.y,10,0,Math.PI*2);
+    ctx.fill();
+
+}
+
+function drawAsteroid(){
+
+    ctx.fillStyle="gray";
+
+    ctx.beginPath();
+    ctx.arc(asteroid.x,asteroid.y,25,0,Math.PI*2);
+    ctx.fill();
+
+}
+
+function gameLoop(){
+
+    update();
+
+    drawBackground();
+    drawStar();
+    drawAsteroid();
+    drawShip();
+
+    requestAnimationFrame(gameLoop);
+
+}
+
+randomStar();
+
+gameLoop();
+
+</script>
+
+</body>
+</html>
