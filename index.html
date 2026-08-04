@@ -3,158 +3,112 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Space Explorer : Galaxy Adventure</title>
+<title>SPACE EXPLORER</title>
 
 <style>
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:'Segoe UI',sans-serif;
+    font-family:"Segoe UI",sans-serif;
 }
 
 body{
     overflow:hidden;
-    background:radial-gradient(circle at bottom,#162447,#0d1326,#02040d);
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    background:#000;
 }
 
-/* 움직이는 별 */
-.stars{
-    position:absolute;
+/* 우주 배경 */
+.space{
+    position:fixed;
     width:100%;
     height:100%;
-    overflow:hidden;
+    background:
+    radial-gradient(circle at center,#162b5c 0%,#050816 45%,#000 100%);
 }
 
+/* 별 */
 .star{
     position:absolute;
-    width:2px;
-    height:2px;
     background:white;
     border-radius:50%;
-    animation:twinkle 3s infinite alternate;
+    animation:blink 2s infinite alternate;
 }
 
-@keyframes twinkle{
-    from{opacity:.2;transform:scale(1);}
-    to{opacity:1;transform:scale(2);}
+@keyframes blink{
+    from{opacity:.2;}
+    to{opacity:1;}
 }
 
-/* 떠다니는 행성 */
-.planet{
+/* 가운데 내용 */
+.content{
     position:absolute;
-    border-radius:50%;
-    opacity:.85;
-    animation:float 8s ease-in-out infinite;
-}
-
-.planet1{
-    width:120px;
-    height:120px;
-    background:#3ea6ff;
-    top:70px;
-    left:80px;
-}
-
-.planet2{
-    width:180px;
-    height:180px;
-    background:#ff8c42;
-    right:70px;
-    bottom:70px;
-}
-
-@keyframes float{
-    0%,100%{transform:translateY(0);}
-    50%{transform:translateY(-20px);}
-}
-
-.menu{
-    position:relative;
-    z-index:2;
-    width:700px;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
     text-align:center;
-    background:rgba(0,0,0,.45);
-    border:2px solid #4dd8ff;
-    border-radius:20px;
-    padding:40px;
-    box-shadow:0 0 30px rgba(77,216,255,.5);
-    backdrop-filter:blur(6px);
-}
-
-h1{
-    color:#6fe9ff;
-    font-size:58px;
-    text-shadow:0 0 20px cyan;
-}
-
-h2{
     color:white;
-    margin-top:10px;
-    font-weight:normal;
+    z-index:10;
 }
 
-.features{
-    margin-top:30px;
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:15px;
+.logo{
+    font-size:75px;
+    font-weight:bold;
+    color:#73e9ff;
+    letter-spacing:5px;
+    text-shadow:
+        0 0 10px cyan,
+        0 0 20px cyan,
+        0 0 40px cyan;
 }
 
-.card{
-    background:rgba(255,255,255,.08);
-    padding:18px;
-    border-radius:12px;
-    color:white;
-    transition:.3s;
+.subtitle{
+    margin-top:15px;
+    font-size:24px;
+    color:#ddd;
+    letter-spacing:2px;
 }
 
-.card:hover{
-    transform:scale(1.05);
-    background:rgba(77,216,255,.2);
-}
-
-.buttons{
-    margin-top:35px;
-}
-
-button{
+.line{
     width:220px;
-    padding:15px;
-    margin:10px;
-    font-size:20px;
-    border:none;
-    border-radius:40px;
-    cursor:pointer;
-    transition:.3s;
+    height:3px;
+    background:#73e9ff;
+    margin:25px auto;
 }
 
 .start{
-    background:#00bfff;
+    margin-top:40px;
+    padding:18px 60px;
+    font-size:22px;
+    border:none;
+    border-radius:50px;
+    cursor:pointer;
     color:white;
+    background:#009dff;
+    transition:.3s;
 }
 
 .start:hover{
-    background:#00d5ff;
     transform:scale(1.08);
+    box-shadow:0 0 25px cyan;
 }
 
-.setting{
-    background:#3c3c3c;
-    color:white;
+.press{
+    margin-top:20px;
+    color:#bbb;
+    animation:fade 1.2s infinite alternate;
 }
 
-.setting:hover{
-    background:#5d5d5d;
+@keyframes fade{
+    from{opacity:.3;}
+    to{opacity:1;}
 }
 
-footer{
-    margin-top:30px;
-    color:#bfbfbf;
+.version{
+    position:absolute;
+    bottom:20px;
+    right:20px;
+    color:#888;
     font-size:14px;
 }
 </style>
@@ -162,76 +116,63 @@ footer{
 
 <body>
 
-<div class="stars" id="stars"></div>
+<div class="space" id="space"></div>
 
-<div class="planet planet1"></div>
-<div class="planet planet2"></div>
+<div class="content">
 
-<div class="menu">
-
-<h1>🚀 SPACE EXPLORER</h1>
-<h2>Galaxy Adventure</h2>
-
-<div class="features">
-
-<div class="card">🌍 행성 탐험</div>
-
-<div class="card">🚀 우주선 업그레이드</div>
-
-<div class="card">⛏️ 자원 채굴</div>
-
-<div class="card">👽 외계 생명체와 전투</div>
-
-<div class="card">🌌 새로운 은하 발견</div>
-
-<div class="card">🏆 최고의 우주 탐험가가 되세요!</div>
-
+<div class="logo">
+SPACE EXPLORER
 </div>
 
-<div class="buttons">
+<div class="subtitle">
+GALAXY ADVENTURE
+</div>
+
+<div class="line"></div>
 
 <button class="start" onclick="startGame()">
-▶ 게임 시작
+게임 시작
 </button>
 
-<button class="setting">
-⚙ 설정
-</button>
+<div class="press">
+미지의 은하로 떠날 준비를 하세요...
+</div>
 
 </div>
 
-<footer>
-Version 1.0 • Space Explorer Project
-</footer>
-
+<div class="version">
+Version 1.0
 </div>
 
 <script>
 
 // 별 생성
-const stars=document.getElementById("stars");
+const space=document.getElementById("space");
 
-for(let i=0;i<200;i++){
+for(let i=0;i<250;i++){
 
     const star=document.createElement("div");
-    star.className="star";
 
+    const size=Math.random()*3+1;
+
+    star.className="star";
+    star.style.width=size+"px";
+    star.style.height=size+"px";
     star.style.left=Math.random()*100+"%";
     star.style.top=Math.random()*100+"%";
+    star.style.animationDuration=(1+Math.random()*3)+"s";
 
-    star.style.animationDuration=(2+Math.random()*4)+"s";
-
-    stars.appendChild(star);
+    space.appendChild(star);
 
 }
 
 // 시작 버튼
 function startGame(){
 
-    // 나중에 game.html로 변경
-    alert("게임이 곧 시작됩니다!");
-
+    // 실제 게임 연결
     // location.href="game.html";
+
+    alert("게임을 시작합니다!");
 
 }
 
