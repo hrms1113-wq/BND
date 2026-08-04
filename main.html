@@ -4,7 +4,8 @@
 <head>
 
 <meta charset="UTF-8">
-<title>SPACE PIRATES : Star Treasure</title>
+<title>SPACE BATTLE</title>
+
 
 <style>
 
@@ -12,75 +13,59 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:Arial,sans-serif;
 }
 
 
 body{
 
     overflow:hidden;
-    background:#020617;
-    color:white;
+    background:black;
+    font-family:Arial, sans-serif;
 
 }
 
 
-/* 우주 배경 */
+canvas{
 
-.space{
-
-    position:absolute;
-    width:100%;
-    height:100%;
+    display:block;
 
     background:
-    radial-gradient(circle,#172554,#020617,#000);
+    radial-gradient(circle,#101d3a,#020617,#000);
 
 }
 
 
 
-/* 별 */
-
-.star{
+#ui{
 
     position:absolute;
-    background:white;
-    border-radius:50%;
 
-    animation:twinkle 2s infinite alternate;
+    top:20px;
+    left:20px;
 
-}
+    color:white;
 
+    font-size:22px;
 
-@keyframes twinkle{
-
-    from{
-        opacity:.2;
-    }
-
-    to{
-        opacity:1;
-    }
+    line-height:35px;
 
 }
 
 
 
-
-/* 제목 */
-
-.title{
+#title{
 
     position:absolute;
-    top:25px;
+
     width:100%;
+
+    top:15px;
 
     text-align:center;
 
-    font-size:45px;
+    color:#00eaff;
 
-    color:#70eaff;
+    font-size:40px;
 
     text-shadow:
     0 0 20px cyan;
@@ -89,111 +74,42 @@ body{
 
 
 
-/* 상태창 */
 
-.status{
+#gameOver{
 
-    position:absolute;
-
-    top:90px;
-    left:30px;
-
-    background:rgba(0,0,0,.6);
-
-    padding:20px;
-
-    border-radius:15px;
-
-    line-height:35px;
-
-}
-
-
-
-
-
-/* 우주선 */
-
-.ship{
+    display:none;
 
     position:absolute;
-
-    font-size:100px;
-
-    left:45%;
-    top:45%;
-
-}
-
-
-
-/* 버튼 */
-
-.menu{
-
-    position:absolute;
-
-    right:30px;
-    top:130px;
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:15px;
-
-}
-
-
-
-button{
-
-    width:250px;
-
-    padding:15px;
-
-    border:none;
-
-    border-radius:30px;
-
-    background:#0284c7;
-
-    color:white;
-
-    font-size:18px;
-
-    cursor:pointer;
-
-}
-
-
-
-button:hover{
-
-    background:#38bdf8;
-
-    transform:scale(1.05);
-
-}
-
-
-
-
-/* 이벤트 창 */
-
-.event{
-
-    position:absolute;
-
-    bottom:40px;
 
     width:100%;
 
-    text-align:center;
+    height:100%;
 
-    font-size:22px;
+    background:rgba(0,0,0,.8);
 
-    color:#fde68a;
+    color:white;
+
+    justify-content:center;
+
+    align-items:center;
+
+    flex-direction:column;
+
+    font-size:50px;
+
+}
+
+
+
+#restart{
+
+    margin-top:30px;
+
+    padding:15px 40px;
+
+    font-size:25px;
+
+    cursor:pointer;
 
 }
 
@@ -204,47 +120,31 @@ button:hover{
 </head>
 
 
+
 <body>
 
 
+<div id="title">
 
-<div class="space" id="space"></div>
+🚀 SPACE BATTLE
 
-
-
-<h1 class="title">
-
-🏴‍☠️ SPACE PIRATES : STAR TREASURE
-
-</h1>
+</div>
 
 
 
+<div id="ui">
 
-<div class="status">
-
-
-🚀 우주선 : SE-01
+❤️ HP :
+<span id="hp">
+100
+</span>
 
 <br>
 
-❤️ 체력 : <span id="hp">100</span>
-
-<br>
-
-⚡ 연료 : <span id="fuel">100</span>
-
-<br>
-
-💎 자원 : <span id="resource">0</span>
-
-<br>
-
-📜 보물 지도 : <span id="map">0</span>/5
-
-<br>
-
-💰 코인 : <span id="coin">0</span>
+⭐ SCORE :
+<span id="score">
+0
+</span>
 
 
 </div>
@@ -252,68 +152,21 @@ button:hover{
 
 
 
-<div class="ship">
+<div id="gameOver">
 
-🚀
+GAME OVER
+
+<button id="restart">
+
+RESTART
+
+</button>
 
 </div>
 
 
 
-
-
-<div class="menu">
-
-
-<button onclick="explore()">
-
-🪐 숨겨진 행성 탐험
-
-</button>
-
-
-
-<button onclick="mine()">
-
-⛏️ 자원 채굴
-
-</button>
-
-
-
-<button onclick="battle()">
-
-🏴‍☠️ 해적과 전투
-
-</button>
-
-
-
-<button onclick="upgrade()">
-
-🚀 우주선 업그레이드
-
-</button>
-
-
-
-<button onclick="treasure()">
-
-📜 보물 지도 확인
-
-</button>
-
-
-
-</div>
-
-
-
-<div class="event" id="event">
-
-별의 보물을 찾기 위한 모험이 시작됩니다.
-
-</div>
+<canvas id="game" width="1200" height="700"></canvas>
 
 
 
@@ -321,124 +174,94 @@ button:hover{
 <script>
 
 
-// 별 생성
+const canvas=
+document.getElementById("game");
 
-let space=document.getElementById("space");
-
-
-for(let i=0;i<200;i++){
-
-
-let star=document.createElement("div");
-
-star.className="star";
-
-
-let size=Math.random()*3+1;
-
-
-star.style.width=size+"px";
-
-star.style.height=size+"px";
-
-
-star.style.left=Math.random()*100+"%";
-
-star.style.top=Math.random()*100+"%";
-
-
-space.appendChild(star);
-
-
-}
+const ctx=
+canvas.getContext("2d");
 
 
 
 
-// 데이터
+// 플레이어 우주선
 
 
-let hp=100;
+let player={
 
-let fuel=100;
+x:150,
 
-let resource=0;
+y:350,
 
-let map=0;
+width:50,
 
-let coin=0;
+height:50,
+
+speed:7,
+
+hp:100
+
+};
 
 
 
 
-function message(text){
+// 키 상태
 
-document.getElementById("event").innerHTML=text;
+
+let keys={};
+
+
+
+document.addEventListener(
+"keydown",
+e=>{
+
+
+keys[e.key]=true;
+
+
+if(e.code==="Space"){
+
+shoot();
 
 }
 
 
-
-
-// 행성 탐험
-
-function explore(){
-
-
-fuel-=10;
-
-
-let chance=Math.random();
-
-
-if(chance<0.4){
-
-
-map++;
-
-message("📜 보물 지도 조각 발견! ("+map+"/5)");
-
-}
-
-
-else if(chance<0.7){
-
-
-resource+=20;
-
-message("💎 희귀 광물을 발견했습니다!");
-
-}
-
-
-else{
-
-
-message("🌑 아무것도 발견하지 못했습니다.");
-
-}
+});
 
 
 
-update();
+document.addEventListener(
+"keyup",
+e=>{
 
+keys[e.key]=false;
 
-}
+});
 
 
 
 
-// 채굴
 
-function mine(){
-
-
-resource+=15;
+// 레이저
 
 
-message("⛏️ 자원 15개 획득!");
+let lasers=[];
 
-update();
+
+
+function shoot(){
+
+
+lasers.push({
+
+x:player.x+40,
+
+y:player.y,
+
+speed:12
+
+});
 
 
 }
@@ -447,105 +270,139 @@ update();
 
 
 
-// 전투
-
-function battle(){
 
 
-let enemy=50+Math.floor(Math.random()*50);
+// 적 종류
 
 
-let damage=20+Math.floor(Math.random()*20);
+let enemies=[];
 
 
 
-enemy-=damage;
+const enemyTypes=[
+
+{
+name:"alien",
+hp:30,
+speed:3,
+damage:1
+},
+
+{
+name:"monster",
+hp:60,
+speed:2,
+damage:2
+},
+
+{
+name:"drone",
+hp:20,
+speed:5,
+damage:1
+}
+
+];
 
 
-if(enemy<=0){
 
 
-coin+=100;
 
-map++;
+// 보스
 
-message("🏆 해적 함선 격파! 코인과 지도 조각 획득!");
+
+let boss=null;
+
+
+
+
+
+
+let score=0;
+
+
+
+let gameRunning=true;
+
+
+
+
+
+
+
+// 적 생성
+
+
+function spawnEnemy(){
+
+
+if(!gameRunning)return;
+
+
+let type=
+enemyTypes[
+Math.floor(Math.random()*enemyTypes.length)
+];
+
+
+
+enemies.push({
+
+x:1200,
+
+y:Math.random()*650,
+
+hp:type.hp,
+
+speed:type.speed,
+
+damage:type.damage,
+
+size:40,
+
+type:type.name
+
+});
+
 
 }
 
 
-else{
 
-
-hp-=20;
-
-
-message("⚔️ 전투 중 피해를 입었습니다!");
-
-}
-
-
-update();
-
-
-}
+setInterval(
+spawnEnemy,
+1200
+);
 
 
 
 
-// 업그레이드
-
-function upgrade(){
 
 
-if(resource>=50){
+
+// 보스 생성
 
 
-resource-=50;
-
-message("🚀 우주선 업그레이드 완료!");
+function spawnBoss(){
 
 
-}
+boss={
 
-else{
+x:950,
 
+y:300,
 
-message("❌ 자원이 부족합니다. (필요:50)");
+hp:500,
 
-}
+speed:2,
 
+size:100
 
-update();
+};
 
 
 }
 
-
-
-
-// 지도 확인
-
-function treasure(){
-
-
-if(map>=5){
-
-
-message("🌌 별의 보물 위치가 발견되었습니다!");
-
-
-}
-
-else{
-
-
-message("📜 아직 지도 조각이 부족합니다. ("+map+"/5)");
-
-}
-
-
-}
 
 
 
@@ -554,18 +411,485 @@ message("📜 아직 지도 조각이 부족합니다. ("+map+"/5)");
 function update(){
 
 
-document.getElementById("hp").innerHTML=hp;
 
-document.getElementById("fuel").innerHTML=fuel;
+if(!gameRunning)
+return;
 
-document.getElementById("resource").innerHTML=resource;
 
-document.getElementById("map").innerHTML=map;
 
-document.getElementById("coin").innerHTML=coin;
+
+// 이동
+
+
+if(keys["ArrowUp"])
+player.y-=player.speed;
+
+
+if(keys["ArrowDown"])
+player.y+=player.speed;
+
+
+if(keys["ArrowLeft"])
+player.x-=player.speed;
+
+
+if(keys["ArrowRight"])
+player.x+=player.speed;
+
+
+
+// 제한
+
+
+player.x=Math.max(
+0,
+Math.min(
+1150,
+player.x
+)
+);
+
+
+player.y=Math.max(
+0,
+Math.min(
+650,
+player.y
+)
+);
+
+
+
+
+
+
+// 레이저 이동
+
+
+lasers.forEach((l,i)=>{
+
+
+l.x+=l.speed;
+
+
+if(l.x>1200)
+
+lasers.splice(i,1);
+
+
+});
+
+
+
+
+
+
+
+// 적 이동
+
+
+enemies.forEach((e,i)=>{
+
+
+e.x-=e.speed;
+
+
+
+// 플레이어 충돌
+
+
+if(
+Math.abs(e.x-player.x)<50 &&
+Math.abs(e.y-player.y)<50
+){
+
+
+player.hp-=e.damage;
+
+
+enemies.splice(i,1);
 
 
 }
+
+
+
+
+
+// 레이저 충돌
+
+
+lasers.forEach((l,j)=>{
+
+
+if(
+Math.abs(l.x-e.x)<40 &&
+Math.abs(l.y-e.y)<40
+){
+
+
+e.hp-=10;
+
+
+lasers.splice(j,1);
+
+
+}
+
+
+});
+
+
+
+
+
+if(e.hp<=0){
+
+
+score+=100;
+
+
+enemies.splice(i,1);
+
+
+}
+
+
+});
+
+
+
+
+
+
+
+// 보스
+
+
+if(score>=1000 && !boss){
+
+spawnBoss();
+
+}
+
+
+
+
+
+if(boss){
+
+
+boss.x-=boss.speed/5;
+
+
+
+lasers.forEach((l,j)=>{
+
+
+if(
+Math.abs(l.x-boss.x)<60 &&
+Math.abs(l.y-boss.y)<60
+){
+
+
+boss.hp-=10;
+
+
+lasers.splice(j,1);
+
+
+}
+
+
+});
+
+
+
+if(
+Math.abs(boss.x-player.x)<80 &&
+Math.abs(boss.y-player.y)<80
+){
+
+
+player.hp-=2;
+
+
+}
+
+
+
+if(boss.hp<=0){
+
+
+alert("🏆 보스 처치! 우주를 지켰습니다!");
+
+location.reload();
+
+
+}
+
+
+
+}
+
+
+
+
+
+document.getElementById("hp").innerHTML=
+Math.floor(player.hp);
+
+
+document.getElementById("score").innerHTML=
+score;
+
+
+
+
+
+if(player.hp<=0){
+
+
+gameOver();
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function draw(){
+
+
+
+ctx.clearRect(
+0,
+0,
+1200,
+700
+);
+
+
+
+
+// 별 배경
+
+
+for(let i=0;i<100;i++){
+
+
+ctx.fillStyle="white";
+
+
+ctx.fillRect(
+
+Math.random()*1200,
+
+Math.random()*700,
+
+2,
+
+2
+
+);
+
+
+}
+
+
+
+
+
+// 플레이어
+
+
+ctx.font="60px Arial";
+
+ctx.fillText(
+
+"🚀",
+
+player.x,
+
+player.y
+
+);
+
+
+
+
+// 레이저
+
+
+ctx.fillStyle="red";
+
+
+lasers.forEach(l=>{
+
+
+ctx.fillRect(
+
+l.x,
+
+l.y,
+
+20,
+
+5
+
+);
+
+
+});
+
+
+
+
+
+
+// 적
+
+
+enemies.forEach(e=>{
+
+
+ctx.font="50px Arial";
+
+
+if(e.type==="alien")
+
+ctx.fillText(
+"👾",
+e.x,
+e.y
+);
+
+
+if(e.type==="monster")
+
+ctx.fillText(
+"👹",
+e.x,
+e.y
+);
+
+
+
+if(e.type==="drone")
+
+ctx.fillText(
+"🛸",
+e.x,
+e.y
+);
+
+
+
+});
+
+
+
+
+
+
+// 보스
+
+
+if(boss){
+
+
+ctx.font="100px Arial";
+
+
+ctx.fillText(
+"👑",
+boss.x,
+boss.y
+);
+
+
+
+ctx.fillStyle="red";
+
+ctx.fillRect(
+
+800,
+
+50,
+
+boss.hp/2,
+
+20
+
+);
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+function loop(){
+
+
+update();
+
+draw();
+
+
+requestAnimationFrame(loop);
+
+
+}
+
+
+
+
+function gameOver(){
+
+
+gameRunning=false;
+
+
+document.getElementById(
+"gameOver"
+).style.display="flex";
+
+
+}
+
+
+
+
+document.getElementById(
+"restart"
+).onclick=function(){
+
+
+location.reload();
+
+
+};
+
+
+
+
+loop();
 
 
 
