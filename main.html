@@ -1,1 +1,577 @@
+<!DOCTYPE html>
+<html lang="ko">
 
+<head>
+
+<meta charset="UTF-8">
+<title>SPACE PIRATES : Star Treasure</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+
+body{
+
+    overflow:hidden;
+    background:#020617;
+    color:white;
+
+}
+
+
+/* 우주 배경 */
+
+.space{
+
+    position:absolute;
+    width:100%;
+    height:100%;
+
+    background:
+    radial-gradient(circle,#172554,#020617,#000);
+
+}
+
+
+
+/* 별 */
+
+.star{
+
+    position:absolute;
+    background:white;
+    border-radius:50%;
+
+    animation:twinkle 2s infinite alternate;
+
+}
+
+
+@keyframes twinkle{
+
+    from{
+        opacity:.2;
+    }
+
+    to{
+        opacity:1;
+    }
+
+}
+
+
+
+
+/* 제목 */
+
+.title{
+
+    position:absolute;
+    top:25px;
+    width:100%;
+
+    text-align:center;
+
+    font-size:45px;
+
+    color:#70eaff;
+
+    text-shadow:
+    0 0 20px cyan;
+
+}
+
+
+
+/* 상태창 */
+
+.status{
+
+    position:absolute;
+
+    top:90px;
+    left:30px;
+
+    background:rgba(0,0,0,.6);
+
+    padding:20px;
+
+    border-radius:15px;
+
+    line-height:35px;
+
+}
+
+
+
+
+
+/* 우주선 */
+
+.ship{
+
+    position:absolute;
+
+    font-size:100px;
+
+    left:45%;
+    top:45%;
+
+}
+
+
+
+/* 버튼 */
+
+.menu{
+
+    position:absolute;
+
+    right:30px;
+    top:130px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:15px;
+
+}
+
+
+
+button{
+
+    width:250px;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:30px;
+
+    background:#0284c7;
+
+    color:white;
+
+    font-size:18px;
+
+    cursor:pointer;
+
+}
+
+
+
+button:hover{
+
+    background:#38bdf8;
+
+    transform:scale(1.05);
+
+}
+
+
+
+
+/* 이벤트 창 */
+
+.event{
+
+    position:absolute;
+
+    bottom:40px;
+
+    width:100%;
+
+    text-align:center;
+
+    font-size:22px;
+
+    color:#fde68a;
+
+}
+
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+
+<div class="space" id="space"></div>
+
+
+
+<h1 class="title">
+
+🏴‍☠️ SPACE PIRATES : STAR TREASURE
+
+</h1>
+
+
+
+
+<div class="status">
+
+
+🚀 우주선 : SE-01
+
+<br>
+
+❤️ 체력 : <span id="hp">100</span>
+
+<br>
+
+⚡ 연료 : <span id="fuel">100</span>
+
+<br>
+
+💎 자원 : <span id="resource">0</span>
+
+<br>
+
+📜 보물 지도 : <span id="map">0</span>/5
+
+<br>
+
+💰 코인 : <span id="coin">0</span>
+
+
+</div>
+
+
+
+
+<div class="ship">
+
+🚀
+
+</div>
+
+
+
+
+
+<div class="menu">
+
+
+<button onclick="explore()">
+
+🪐 숨겨진 행성 탐험
+
+</button>
+
+
+
+<button onclick="mine()">
+
+⛏️ 자원 채굴
+
+</button>
+
+
+
+<button onclick="battle()">
+
+🏴‍☠️ 해적과 전투
+
+</button>
+
+
+
+<button onclick="upgrade()">
+
+🚀 우주선 업그레이드
+
+</button>
+
+
+
+<button onclick="treasure()">
+
+📜 보물 지도 확인
+
+</button>
+
+
+
+</div>
+
+
+
+<div class="event" id="event">
+
+별의 보물을 찾기 위한 모험이 시작됩니다.
+
+</div>
+
+
+
+
+<script>
+
+
+// 별 생성
+
+let space=document.getElementById("space");
+
+
+for(let i=0;i<200;i++){
+
+
+let star=document.createElement("div");
+
+star.className="star";
+
+
+let size=Math.random()*3+1;
+
+
+star.style.width=size+"px";
+
+star.style.height=size+"px";
+
+
+star.style.left=Math.random()*100+"%";
+
+star.style.top=Math.random()*100+"%";
+
+
+space.appendChild(star);
+
+
+}
+
+
+
+
+// 데이터
+
+
+let hp=100;
+
+let fuel=100;
+
+let resource=0;
+
+let map=0;
+
+let coin=0;
+
+
+
+
+function message(text){
+
+document.getElementById("event").innerHTML=text;
+
+}
+
+
+
+
+// 행성 탐험
+
+function explore(){
+
+
+fuel-=10;
+
+
+let chance=Math.random();
+
+
+if(chance<0.4){
+
+
+map++;
+
+message("📜 보물 지도 조각 발견! ("+map+"/5)");
+
+}
+
+
+else if(chance<0.7){
+
+
+resource+=20;
+
+message("💎 희귀 광물을 발견했습니다!");
+
+}
+
+
+else{
+
+
+message("🌑 아무것도 발견하지 못했습니다.");
+
+}
+
+
+
+update();
+
+
+}
+
+
+
+
+// 채굴
+
+function mine(){
+
+
+resource+=15;
+
+
+message("⛏️ 자원 15개 획득!");
+
+update();
+
+
+}
+
+
+
+
+
+// 전투
+
+function battle(){
+
+
+let enemy=50+Math.floor(Math.random()*50);
+
+
+let damage=20+Math.floor(Math.random()*20);
+
+
+
+enemy-=damage;
+
+
+if(enemy<=0){
+
+
+coin+=100;
+
+map++;
+
+message("🏆 해적 함선 격파! 코인과 지도 조각 획득!");
+
+}
+
+
+else{
+
+
+hp-=20;
+
+
+message("⚔️ 전투 중 피해를 입었습니다!");
+
+}
+
+
+update();
+
+
+}
+
+
+
+
+// 업그레이드
+
+function upgrade(){
+
+
+if(resource>=50){
+
+
+resource-=50;
+
+message("🚀 우주선 업그레이드 완료!");
+
+
+}
+
+else{
+
+
+message("❌ 자원이 부족합니다. (필요:50)");
+
+}
+
+
+update();
+
+
+}
+
+
+
+
+// 지도 확인
+
+function treasure(){
+
+
+if(map>=5){
+
+
+message("🌌 별의 보물 위치가 발견되었습니다!");
+
+
+}
+
+else{
+
+
+message("📜 아직 지도 조각이 부족합니다. ("+map+"/5)");
+
+}
+
+
+}
+
+
+
+
+
+function update(){
+
+
+document.getElementById("hp").innerHTML=hp;
+
+document.getElementById("fuel").innerHTML=fuel;
+
+document.getElementById("resource").innerHTML=resource;
+
+document.getElementById("map").innerHTML=map;
+
+document.getElementById("coin").innerHTML=coin;
+
+
+}
+
+
+
+</script>
+
+
+</body>
+
+</html>
