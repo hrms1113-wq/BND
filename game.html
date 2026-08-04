@@ -4,7 +4,8 @@
 <head>
 
 <meta charset="UTF-8">
-<title>SPACE EXPLORER - Battle</title>
+<title>SPACE EXPLORER - Alien Battle</title>
+
 
 <style>
 
@@ -12,34 +13,37 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:Arial,sans-serif;
 }
 
 
 body{
+
     overflow:hidden;
     background:black;
+    font-family:Arial,sans-serif;
+
 }
 
 
 canvas{
+
     display:block;
-    background:#020617;
+
 }
 
 
-/* 정보창 */
+/* UI */
 
 #ui{
 
     position:absolute;
+
     top:20px;
     left:20px;
 
     color:white;
-    font-size:22px;
 
-    line-height:35px;
+    font-size:24px;
 
     z-index:2;
 
@@ -58,18 +62,19 @@ canvas{
 
     color:#70eaff;
 
-    font-size:40px;
+    font-size:38px;
 
-    text-shadow:0 0 20px cyan;
+    text-shadow:
+    0 0 20px cyan;
 
     z-index:2;
 
 }
 
 
-/* 보스 */
+#bossUI{
 
-#bossBar{
+    display:none;
 
     position:absolute;
 
@@ -81,14 +86,17 @@ canvas{
 
     color:red;
 
-    font-size:25px;
+    font-size:28px;
 
-    display:none;
+    z-index:2;
 
 }
 
 
-/* 게임 종료 */
+
+
+
+/* 게임오버 */
 
 #gameOver{
 
@@ -100,7 +108,7 @@ canvas{
 
     height:100%;
 
-    background:rgba(0,0,0,.8);
+    background:rgba(0,0,0,0.85);
 
     color:white;
 
@@ -119,9 +127,9 @@ canvas{
 
 #gameOver button{
 
-    margin-top:30px;
+    margin-top:25px;
 
-    padding:15px 40px;
+    padding:15px 50px;
 
     font-size:25px;
 
@@ -130,31 +138,38 @@ canvas{
 }
 
 
+
 </style>
 
 </head>
+
 
 
 <body>
 
 
 <div id="title">
-🚀 SPACE EXPLORER : ALIEN BATTLE
+🚀 SPACE EXPLORER : ALIEN WAR
 </div>
 
 
 
 <div id="ui">
 
-❤️ 생명 :
-<span id="life">
-❤️❤️❤️❤️❤️
-</span>
+❤️ <span id="life">❤️❤️❤️</span>
 
 <br>
 
-⭐ 점수 :
+⭐ SCORE :
 <span id="score">
+0
+</span>
+
+
+<br>
+
+👾 DESTROY :
+<span id="kills">
 0
 </span>
 
@@ -163,13 +178,18 @@ canvas{
 
 
 
-<div id="bossBar">
 
-👑 보스 HP :
+<div id="bossUI">
+
+👑 BOSS HP :
+
 <span id="bossHP">
+
 </span>
 
+
 </div>
+
 
 
 
@@ -180,17 +200,19 @@ canvas{
 GAME OVER
 
 
-<div id="result"></div>
+<div id="finalScore"></div>
+
 
 
 <button onclick="restart()">
-다시 시작
+RESTART
 </button>
 
 
 <button onclick="mainMenu()">
-메인 화면
+MAIN MENU
 </button>
+
 
 
 </div>
@@ -203,56 +225,49 @@ GAME OVER
 
 
 
+
+
 <script>
 
 
+
 const canvas=document.getElementById("game");
+
 const ctx=canvas.getContext("2d");
 
 
 
-// ----------------
+
+// =================
 // 플레이어
-// ----------------
+// =================
 
 
 let player={
 
+
 x:150,
+
 y:350,
 
-speed:6,
 
-life:5
+speed:7,
+
+
+life:3
+
 
 };
 
 
 
 
-// 업그레이드 연결 대비
+// =================
+// 키 입력
+// =================
 
-let playerData={
-
-laserLevel:1,
-shieldLevel:1,
-engineLevel:1
-
-};
-
-
-
-
-// 키
 
 let keys={};
-
-
-
-// 레이저
-
-let lasers=[];
-
 
 
 
@@ -260,6 +275,7 @@ document.addEventListener("keydown",e=>{
 
 
 keys[e.key]=true;
+
 
 
 if(e.code==="Space"){
@@ -284,17 +300,25 @@ keys[e.key]=false;
 
 
 
+// =================
+// 레이저
+// =================
+
+
+let lasers=[];
+
+
 
 function shoot(){
 
 
 lasers.push({
 
-x:player.x+40,
+x:player.x+50,
 
-y:player.y,
+y:player.y-15,
 
-speed:12
+speed:14
 
 });
 
@@ -307,9 +331,9 @@ speed:12
 
 
 
-// ----------------
+// =================
 // 별 배경
-// ----------------
+// =================
 
 
 let stars=[];
@@ -324,9 +348,10 @@ x:Math.random()*1200,
 
 y:Math.random()*700,
 
-size:Math.random()*3+1,
+size:Math.random()*3,
 
-speed:0.3+Math.random()*0.5
+speed:0.3+Math.random()*0.8
+
 
 });
 
@@ -335,7 +360,8 @@ speed:0.3+Math.random()*0.5
 
 
 
-function moveStars(){
+
+function updateStars(){
 
 
 stars.forEach(s=>{
@@ -344,9 +370,11 @@ stars.forEach(s=>{
 s.x-=s.speed;
 
 
+
 if(s.x<0){
 
 s.x=1200;
+
 s.y=Math.random()*700;
 
 }
@@ -364,43 +392,52 @@ s.y=Math.random()*700;
 
 
 
-// ----------------
+// =================
 // 적
-// ----------------
+// =================
 
 
 let enemies=[];
 
 
-let enemyTypes=[
+
+let enemyList=[
 
 
 {
 
 icon:"👾",
+
 hp:30,
-speed:2,
-damage:1
+
+speed:4
+
 
 },
 
-
-{
-
-icon:"👹",
-hp:70,
-speed:1.5,
-damage:1
-
-},
 
 
 {
 
 icon:"🛸",
+
 hp:20,
-speed:3,
-damage:1
+
+speed:6
+
+
+},
+
+
+
+{
+
+icon:"👹",
+
+hp:80,
+
+speed:2
+
 
 }
 
@@ -411,12 +448,14 @@ damage:1
 
 
 
-function createEnemy(){
+
+function spawnEnemy(){
 
 
-let type=
-enemyTypes[
-Math.floor(Math.random()*enemyTypes.length)
+let e=
+
+enemyList[
+Math.floor(Math.random()*enemyList.length)
 ];
 
 
@@ -426,16 +465,14 @@ enemies.push({
 
 x:1250,
 
-y:Math.random()*650+30,
+y:Math.random()*620+40,
 
 
-hp:type.hp,
+hp:e.hp,
 
-speed:type.speed,
+speed:e.speed,
 
-damage:type.damage,
-
-icon:type.icon
+icon:e.icon
 
 
 });
@@ -445,31 +482,33 @@ icon:type.icon
 
 
 
+
 setInterval(()=>{
 
 
-if(gameRunning && !boss)
+if(gameRun && !boss)
 
-createEnemy();
-
-
-},2500);
+spawnEnemy();
 
 
+},1800);
 
 
 
 
 
 
-// ----------------
+
+
+// =================
 // 보스
-// ----------------
+// =================
 
 
 let boss=null;
 
-let killCount=0;
+
+let kills=0;
 
 
 
@@ -478,18 +517,26 @@ function createBoss(){
 
 boss={
 
-x:1050,
+
+x:1100,
 
 y:350,
 
+
 hp:500,
 
-speed:0.7
+
+speed:1
+
 
 };
 
 
-document.getElementById("bossBar").style.display="block";
+document.getElementById("bossUI").style.display="block";
+
+
+alert("⚠ WARNING\nBOSS APPROACHING!");
+
 
 
 }
@@ -501,9 +548,48 @@ document.getElementById("bossBar").style.display="block";
 
 
 
+
+// =================
+// 폭발 효과
+// =================
+
+
+let explosions=[];
+
+
+
+function explosion(x,y){
+
+
+explosions.push({
+
+x:x,
+
+y:y,
+
+size:10
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+// =================
+// 게임 상태
+// =================
+
+
 let score=0;
 
-let gameRunning=true;
+let gameRun=true;
+
 
 
 
@@ -516,13 +602,11 @@ let gameRunning=true;
 function update(){
 
 
-
-if(!gameRunning)
-return;
+if(!gameRun)return;
 
 
 
-moveStars();
+updateStars();
 
 
 
@@ -530,18 +614,25 @@ moveStars();
 
 
 if(keys["ArrowUp"])
+
 player.y-=player.speed;
 
 
+
 if(keys["ArrowDown"])
+
 player.y+=player.speed;
 
 
+
 if(keys["ArrowLeft"])
+
 player.x-=player.speed;
 
 
+
 if(keys["ArrowRight"])
+
 player.x+=player.speed;
 
 
@@ -549,14 +640,14 @@ player.x+=player.speed;
 
 player.x=Math.max(0,Math.min(1150,player.x));
 
-player.y=Math.max(40,Math.min(650,player.y));
+player.y=Math.max(50,Math.min(650,player.y));
 
 
 
 
 
 
-// 레이저
+// 레이저 이동
 
 
 lasers.forEach((l,i)=>{
@@ -577,6 +668,8 @@ lasers.splice(i,1);
 
 
 
+
+
 // 적 처리
 
 
@@ -587,7 +680,9 @@ e.x-=e.speed;
 
 
 
-// 화면 통과
+
+
+// 화면 탈출
 
 if(e.x<0){
 
@@ -602,7 +697,10 @@ enemies.splice(i,1);
 
 
 
+
+
 // 충돌
+
 
 if(
 
@@ -625,7 +723,8 @@ enemies.splice(i,1);
 
 
 
-// 레이저 충돌
+
+// 레이저 공격
 
 
 lasers.forEach((l,j)=>{
@@ -659,13 +758,18 @@ if(e.hp<=0){
 
 score+=100;
 
-killCount++;
+kills++;
+
+
+explosion(e.x,e.y);
 
 
 enemies.splice(i,1);
 
 
+
 }
+
 
 
 });
@@ -678,9 +782,12 @@ enemies.splice(i,1);
 
 // 보스 등장
 
-if(killCount>=20 && boss==null){
+
+if(kills>=25 && boss==null){
+
 
 createBoss();
+
 
 }
 
@@ -688,7 +795,9 @@ createBoss();
 
 
 
-// 보스 전투
+
+
+// 보스전
 
 
 if(boss){
@@ -703,14 +812,15 @@ lasers.forEach((l,i)=>{
 
 if(
 
-Math.abs(l.x-boss.x)<80 &&
+Math.abs(l.x-boss.x)<100 &&
 
-Math.abs(l.y-boss.y)<80
+Math.abs(l.y-boss.y)<100
 
 ){
 
 
 boss.hp-=10;
+
 
 lasers.splice(i,1);
 
@@ -718,22 +828,25 @@ lasers.splice(i,1);
 }
 
 
+
 });
+
 
 
 
 
 if(
 
-Math.abs(boss.x-player.x)<100 &&
-
-Math.abs(boss.y-player.y)<100
+Math.abs(boss.x-player.x)<100
 
 ){
 
+
 player.life--;
 
+
 }
+
 
 
 
@@ -746,7 +859,7 @@ document.getElementById("bossHP").innerHTML=boss.hp;
 if(boss.hp<=0){
 
 
-alert("🏆 보스 격파! 임무 성공!");
+alert("🏆 BOSS DEFEATED!");
 
 location.reload();
 
@@ -763,6 +876,29 @@ location.reload();
 
 
 
+
+// 폭발
+
+
+explosions.forEach((e,i)=>{
+
+
+e.size+=2;
+
+
+if(e.size>40)
+
+explosions.splice(i,1);
+
+
+});
+
+
+
+
+
+
+
 updateUI();
 
 
@@ -770,13 +906,9 @@ updateUI();
 
 
 
-if(player.life<=0){
+if(player.life<=0)
 
-
-gameOver();
-
-
-}
+endGame();
 
 
 
@@ -806,10 +938,15 @@ stars.forEach(s=>{
 
 
 ctx.fillRect(
+
 s.x,
+
 s.y,
+
 s.size,
+
 s.size
+
 );
 
 
@@ -818,15 +955,22 @@ s.size
 
 
 
+
 // 우주선
+
 
 ctx.font="60px Arial";
 
 ctx.fillText(
+
 "🚀",
+
 player.x,
+
 player.y
+
 );
+
 
 
 
@@ -834,7 +978,8 @@ player.y
 
 // 레이저
 
-ctx.fillStyle="red";
+
+ctx.fillStyle="#00ffff";
 
 
 lasers.forEach(l=>{
@@ -843,14 +988,18 @@ lasers.forEach(l=>{
 ctx.fillRect(
 
 l.x,
+
 l.y,
-20,
+
+25,
+
 5
 
 );
 
 
 });
+
 
 
 
@@ -864,7 +1013,6 @@ enemies.forEach(e=>{
 
 ctx.font="55px Arial";
 
-
 ctx.fillText(
 
 e.icon,
@@ -876,7 +1024,10 @@ e.y
 );
 
 
+
 });
+
+
 
 
 
@@ -891,9 +1042,13 @@ ctx.font="100px Arial";
 
 
 ctx.fillText(
+
 "👑",
+
 boss.x,
+
 boss.y
+
 );
 
 
@@ -901,7 +1056,45 @@ boss.y
 
 
 
+
+
+
+// 폭발
+
+
+explosions.forEach(e=>{
+
+
+ctx.fillStyle="orange";
+
+
+ctx.beginPath();
+
+
+ctx.arc(
+
+e.x,
+
+e.y,
+
+e.size,
+
+0,
+
+Math.PI*2
+
+);
+
+
+ctx.fill();
+
+
+});
+
+
+
 }
+
 
 
 
@@ -913,22 +1106,26 @@ boss.y
 function updateUI(){
 
 
-let hearts="";
+let heart="";
 
 
-for(let i=0;i<player.life;i++){
+for(let i=0;i<player.life;i++)
 
-hearts+="❤️";
-
-}
+heart+="❤️";
 
 
-document.getElementById("life").innerHTML=hearts;
+
+document.getElementById("life").innerHTML=heart;
+
 
 
 document.getElementById("score").innerHTML=score;
 
 
+document.getElementById("kills").innerHTML=kills;
+
+
+
 }
 
 
@@ -936,18 +1133,18 @@ document.getElementById("score").innerHTML=score;
 
 
 
-function gameOver(){
+function endGame(){
 
 
-gameRunning=false;
+gameRun=false;
 
 
 document.getElementById("gameOver").style.display="flex";
 
 
-document.getElementById("result").innerHTML=
+document.getElementById("finalScore").innerHTML=
 
-"점수 : "+score;
+"FINAL SCORE : "+score;
 
 
 }
@@ -964,7 +1161,6 @@ location.reload();
 }
 
 
-
 function mainMenu(){
 
 location.href="main.html";
@@ -977,7 +1173,7 @@ location.href="main.html";
 
 
 
-function loop(){
+function gameLoop(){
 
 
 update();
@@ -985,14 +1181,13 @@ update();
 draw();
 
 
-requestAnimationFrame(loop);
+requestAnimationFrame(gameLoop);
 
 
 }
 
 
-
-loop();
+gameLoop();
 
 
 
