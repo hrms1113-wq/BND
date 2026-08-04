@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SPACE EXPLORER - Battle</title>
+
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+
+body{
+
+    overflow:hidden;
+    background:black;
+    font-family:Arial,sans-serif;
+
+}
+
+
+canvas{
+
+    display:block;
+
+    background:
+    radial-gradient(circle,#162447,#020617,#000);
+
+}
+
+
+/* 상단 정보 */
+
+#ui{
+
+    position:absolute;
+
+    top:20px;
+    left:20px;
+
+    color:white;
+
+    font-size:22px;
+
+    line-height:35px;
+
+    z-index:2;
+
+}
+
+
+#title{
+
+    position:absolute;
+
+    width:100%;
+
+    top:20px;
+
+    text-align:center;
+
+    color:#70eaff;
+
+    font-size:40px;
+
+    text-shadow:
+    0 0 20px cyan;
+
+    z-index:2;
+
+}
+
+
+
+
+/* 보스 체력 */
+
+#bossHP{
+
+    position:absolute;
+
+    top:80px;
+
+    width:100%;
+
+    text-align:center;
+
+    color:red;
+
+    font-size:25px;
+
+    display:none;
+
+}
+
+
+
+
+
+/* 게임오버 */
+
+#gameOver{
+
+
+    display:none;
+
+    position:absolute;
+
+    width:100%;
+
+    height:100%;
+
+
+    background:rgba(0,0,0,.8);
+
+
+    color:white;
+
+
+    justify-content:center;
+
+    align-items:center;
+
+    flex-direction:column;
+
+
+    font-size:60px;
+
+
+    z-index:5;
+
+}
+
+
+
+#gameOver button{
+
+    margin-top:30px;
+
+    padding:15px 50px;
+
+    font-size:25px;
+
+    cursor:pointer;
+
+}
+
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+<div id="title">
+
+🚀 SPACE EXPLORER : ALIEN WAR
+
+</div>
+
+
+
+<div id="ui">
+
+❤️ HP :
+<span id="hp">
+100
+</span>
+
+<br>
+
+⭐ SCORE :
+<span id="score">
+0
+</span>
+
+
+</div>
+
+
+<div id="bossHP">
+
+👑 BOSS HP :
+<span id="bossValue">
+
+</span>
+
+</div>
+
+
+
+<div id="gameOver">
+
+
+GAME OVER
+
+
+<button onclick="location.reload()">
+
+RESTART
+
+</button>
+
+
+</div>
+
+
+
+
+<canvas id="game" width="1200" height="700"></canvas>
+
+
+
+
+<script>
+
+
+const canvas=document.getElementById("game");
+
+const ctx=canvas.getContext("2d");
+
+
+
+
+
+// 플레이어
+
+
+let player={
+
+
+x:150,
+
+y:350,
+
+
+speed:7,
+
+
+hp:100
+
+
+};
+
+
+
+
+
+
+// 키
+
+
+let keys={};
+
+
+
+
+
+document.addEventListener("keydown",e=>{
+
+
+keys[e.key]=true;
+
+
+
+if(e.code==="Space"){
+
+shoot();
+
+}
+
+
+});
+
+
+
+document.addEventListener("keyup",e=>{
+
+
+keys[e.key]=false;
+
+
+});
+
+
+
+
+
+
+
+// 레이저
+
+
+let lasers=[];
+
+
+
+
+function shoot(){
+
+
+lasers.push({
+
+x:player.x+40,
+
+y:player.y,
+
+speed:12
+
+});
+
+
+}
+
+
+
+
+
+
+
+// 적 종류
+
+
+let enemyTypes=[
+
+
+{
+
+type:"alien",
+
+icon:"👾",
+
+hp:30,
+
+speed:3,
+
+damage:1
+
+},
+
+
+{
+
+type:"monster",
+
+icon:"👹",
+
+hp:80,
+
+speed:2,
+
+damage:2
+
+},
+
+
+{
+
+type:"drone",
+
+icon:"🛸",
+
+hp:20,
+
+speed:5,
+
+damage:1
+
+}
+
+
+];
+
+
+
+
+
+let enemies=[];
+
+
+
+
+
+function createEnemy(){
+
+
+let e=
+
+enemyTypes[
+Math.floor(Math.random()*enemyTypes.length)
+];
+
+
+enemies.push({
+
+
+x:1200,
+
+y:Math.random()*650,
+
+hp:e.hp,
+
+speed:e.speed,
+
+damage:e.damage,
+
+icon:e.icon
+
+});
+
+
+}
+
+
+
+setInterval(createEnemy,1200);
+
+
+
+
+
+
+
+
+// 보스
+
+
+let boss=null;
+
+
+
+
+
+let score=0;
+
+
+
+
+
+
+
+function createBoss(){
+
+
+boss={
+
+
+x:1000,
+
+y:350,
+
+hp:500,
+
+speed:1,
+
+icon:"👑"
+
+
+};
+
+
+document.getElementById("bossHP").style.display="block";
+
+
+}
+
+
+
+
+
+
+
+
+
+function update(){
+
+
+
+// 이동
+
+
+if(keys["ArrowUp"])
+
+player.y-=player.speed;
+
+
+if(keys["ArrowDown"])
+
+player.y+=player.speed;
+
+
+if(keys["ArrowLeft"])
+
+player.x-=player.speed;
+
+
+if(keys["ArrowRight"])
+
+player.x+=player.speed;
+
+
+
+
+// 제한
+
+
+player.x=Math.max(0,Math.min(1150,player.x));
+
+player.y=Math.max(40,Math.min(650,player.y));
+
+
+
+
+
+
+
+// 레이저 이동
+
+
+lasers.forEach((l,index)=>{
+
+
+l.x+=l.speed;
+
+
+if(l.x>1200)
+
+lasers.splice(index,1);
+
+
+});
+
+
+
+
+
+
+
+
+// 적 이동
+
+
+enemies.forEach((e,index)=>{
+
+
+e.x-=e.speed;
+
+
+
+
+
+// 플레이어 충돌
+
+
+if(
+
+Math.abs(e.x-player.x)<50 &&
+
+Math.abs(e.y-player.y)<50
+
+){
+
+
+player.hp-=e.damage;
+
+
+enemies.splice(index,1);
+
+
+}
+
+
+
+
+
+// 레이저 충돌
+
+
+lasers.forEach((l,i)=>{
+
+
+if(
+
+Math.abs(l.x-e.x)<40 &&
+
+Math.abs(l.y-e.y)<40
+
+){
+
+
+e.hp-=10;
+
+
+lasers.splice(i,1);
+
+
+}
+
+
+});
+
+
+
+
+
+
+if(e.hp<=0){
+
+
+score+=100;
+
+
+enemies.splice(index,1);
+
+
+}
+
+
+
+});
+
+
+
+
+
+
+
+
+// 보스 등장
+
+
+if(score>=1000 && boss==null){
+
+createBoss();
+
+}
+
+
+
+
+
+
+
+
+// 보스 전투
+
+
+if(boss){
+
+
+boss.x-=0.5;
+
+
+
+lasers.forEach((l,i)=>{
+
+
+if(
+
+Math.abs(l.x-boss.x)<80 &&
+
+Math.abs(l.y-boss.y)<80
+
+){
+
+
+boss.hp-=10;
+
+
+lasers.splice(i,1);
+
+
+}
+
+
+});
+
+
+
+
+if(
+
+Math.abs(boss.x-player.x)<100 &&
+
+Math.abs(boss.y-player.y)<100
+
+){
+
+
+player.hp-=1;
+
+
+}
+
+
+
+
+
+document.getElementById("bossValue").innerHTML=boss.hp;
+
+
+
+if(boss.hp<=0){
+
+
+alert("🏆 보스 격파! 우주를 지켰습니다!");
+
+location.reload();
+
+
+}
+
+
+
+}
+
+
+
+
+
+document.getElementById("hp").innerHTML=
+Math.floor(player.hp);
+
+
+document.getElementById("score").innerHTML=
+score;
+
+
+
+
+
+
+if(player.hp<=0){
+
+
+document.getElementById("gameOver").style.display="flex";
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+
+function draw(){
+
+
+
+ctx.clearRect(0,0,1200,700);
+
+
+
+
+
+
+// 별
+
+for(let i=0;i<100;i++){
+
+
+ctx.fillStyle="white";
+
+
+ctx.fillRect(
+
+Math.random()*1200,
+
+Math.random()*700,
+
+2,
+
+2
+
+);
+
+
+}
+
+
+
+
+
+
+// 플레이어
+
+
+ctx.font="60px Arial";
+
+
+ctx.fillText(
+
+"🚀",
+
+player.x,
+
+player.y
+
+);
+
+
+
+
+
+
+
+// 레이저
+
+
+ctx.fillStyle="red";
+
+
+lasers.forEach(l=>{
+
+
+ctx.fillRect(
+
+l.x,
+
+l.y,
+
+20,
+
+5
+
+);
+
+
+});
+
+
+
+
+
+
+
+
+// 적
+
+
+enemies.forEach(e=>{
+
+
+ctx.font="55px Arial";
+
+
+ctx.fillText(
+
+e.icon,
+
+e.x,
+
+e.y
+
+);
+
+
+
+ctx.font="15px Arial";
+
+
+ctx.fillText(
+
+"HP:"+e.hp,
+
+e.x,
+
+e.y-40
+
+);
+
+
+});
+
+
+
+
+
+
+// 보스
+
+
+if(boss){
+
+
+ctx.font="100px Arial";
+
+
+ctx.fillText(
+
+"👑",
+
+boss.x,
+
+boss.y
+
+);
+
+
+}
+
+
+
+
+
+}
+
+
+
+
+
+
+
+function gameLoop(){
+
+
+update();
+
+draw();
+
+
+requestAnimationFrame(gameLoop);
+
+
+}
+
+
+
+
+gameLoop();
+
+
+
+</script>
+
+
+
+</body>
+
+</html>
