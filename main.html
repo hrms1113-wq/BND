@@ -4,55 +4,262 @@
 <head>
 
 <meta charset="UTF-8">
-<title>Space Explorer Mission</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SPACE EXPLORER - Main</title>
 
 
 <style>
 
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+
 body{
 
-margin:0;
-overflow:hidden;
-background:#020617;
-
-font-family:Arial;
+    overflow:hidden;
+    background:#020617;
 
 }
 
 
-canvas{
+/* 우주 */
 
-display:block;
-background:
-radial-gradient(circle,#102040,#000);
+.space{
 
-}
+    width:100%;
+    height:100vh;
 
-
-#ui{
-
-position:absolute;
-top:15px;
-left:20px;
-
-color:white;
-
-font-size:22px;
+    background:
+    radial-gradient(circle,#172554,#020617,#000);
 
 }
 
 
-#help{
 
-position:absolute;
-bottom:15px;
-width:100%;
+/* 별 */
 
-text-align:center;
+.star{
 
-color:#aaa;
+    position:absolute;
+
+    width:3px;
+    height:3px;
+
+    background:white;
+
+    border-radius:50%;
+
+    animation:blink 2s infinite alternate;
 
 }
+
+
+@keyframes blink{
+
+    from{
+        opacity:.2;
+    }
+
+    to{
+        opacity:1;
+    }
+
+}
+
+
+
+/* 행성 */
+
+.planet{
+
+    position:absolute;
+
+    border-radius:50%;
+
+    animation:move 8s infinite alternate;
+
+}
+
+
+
+.earth{
+
+    width:180px;
+    height:180px;
+
+    background:#2563eb;
+
+    left:80px;
+    top:150px;
+
+}
+
+
+.mars{
+
+    width:130px;
+    height:130px;
+
+    background:#ef4444;
+
+    right:120px;
+    bottom:150px;
+
+}
+
+
+
+@keyframes move{
+
+    from{
+        transform:translateY(0);
+    }
+
+    to{
+        transform:translateY(-30px);
+    }
+
+}
+
+
+
+
+/* UI */
+
+.status{
+
+    position:absolute;
+
+    top:20px;
+    left:30px;
+
+    color:white;
+
+    font-size:20px;
+
+    background:rgba(0,0,0,.5);
+
+    padding:20px;
+
+    border-radius:15px;
+
+}
+
+
+
+.title{
+
+    position:absolute;
+
+    top:25px;
+
+    width:100%;
+
+    text-align:center;
+
+    color:#70eaff;
+
+    font-size:45px;
+
+    text-shadow:0 0 20px cyan;
+
+}
+
+
+
+
+/* 우주선 */
+
+
+.ship{
+
+    position:absolute;
+
+    font-size:80px;
+
+    left:50%;
+    top:55%;
+
+    transform:translate(-50%,-50%);
+
+}
+
+
+
+
+/* 메뉴 */
+
+.menu{
+
+    position:absolute;
+
+    right:30px;
+
+    top:120px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:15px;
+
+}
+
+
+
+button{
+
+    width:230px;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:30px;
+
+    background:#0284c7;
+
+    color:white;
+
+    font-size:18px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+
+
+button:hover{
+
+    transform:scale(1.1);
+
+    box-shadow:0 0 20px cyan;
+
+}
+
+
+
+.info{
+
+    position:absolute;
+
+    bottom:20px;
+
+    width:100%;
+
+    text-align:center;
+
+    color:#aaa;
+
+}
+
 
 
 </style>
@@ -60,87 +267,185 @@ color:#aaa;
 </head>
 
 
+
 <body>
 
 
-<div id="ui">
+<div class="space" id="space"></div>
 
-❤️ HP : <span id="hp">100</span>
 
-&nbsp;&nbsp;
+<div class="planet earth"></div>
 
-⭐ 점수 : <span id="score">0</span>
+<div class="planet mars"></div>
 
-&nbsp;&nbsp;
+
+
+<h1 class="title">
+
+🚀 SPACE EXPLORER
+
+</h1>
+
+
+
+
+<div class="status">
+
+
+❤️ 체력 : 100
+
+<br>
+
+⚡ 연료 : 100
+
+<br>
 
 💎 자원 : <span id="resource">0</span>
 
+<br>
+
+💰 코인 : <span id="coin">0</span>
+
+<br>
+
+🌌 은하 : 1
+
+
 </div>
 
 
-<div id="help">
 
-방향키 : 이동 | SPACE : 레이저 발사 | 자원과 별을 모으세요!
+
+
+<div class="ship" id="ship">
+
+🚀
 
 </div>
 
 
-<canvas id="game" width="1000" height="650"></canvas>
+
+
+
+<div class="menu">
+
+
+<button onclick="explorePlanet()">
+
+🌍 행성 탐험
+
+</button>
+
+
+
+<button onclick="upgradeShip()">
+
+🚀 우주선 업그레이드
+
+</button>
+
+
+
+<button onclick="mineResource()">
+
+⛏️ 자원 채굴
+
+</button>
+
+
+
+
+<button onclick="battleAlien()">
+
+👽 외계 생명체 전투
+
+</button>
+
+
+
+
+<button onclick="discoverGalaxy()">
+
+🌌 새로운 은하 발견
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+<div class="info">
+
+방향키 : 우주선 이동 | SPACE EXPLORER MISSION
+
+</div>
+
+
+
 
 
 <script>
 
 
-const canvas=document.getElementById("game");
+// 별 생성
 
-const ctx=canvas.getContext("2d");
-
-
-
-// 플레이어
-
-let ship={
-
-x:500,
-
-y:500,
-
-size:25,
-
-speed:6,
-
-hp:100
-
-};
+const space=document.getElementById("space");
 
 
+for(let i=0;i<200;i++){
 
-// 점수
 
-let score=0;
+    let star=document.createElement("div");
 
-let resource=0;
+    star.className="star";
+
+
+    star.style.left=Math.random()*100+"%";
+
+    star.style.top=Math.random()*100+"%";
+
+
+    star.style.animationDuration=
+
+    (1+Math.random()*3)+"s";
+
+
+    space.appendChild(star);
+
+
+}
 
 
 
-// 키
+
+// 우주선 이동
+
+
+const ship=document.getElementById("ship");
+
+
+let x=window.innerWidth/2;
+
+let y=window.innerHeight/2;
+
+
+let speed=7;
+
 
 let keys={};
+
 
 
 document.addEventListener("keydown",e=>{
 
 keys[e.key]=true;
 
-
-if(e.code==="Space"){
-
-laser();
-
-}
-
-
 });
+
 
 
 document.addEventListener("keyup",e=>{
@@ -152,246 +457,82 @@ keys[e.key]=false;
 
 
 
-// 별
-
-let star={
-
-x:300,
-
-y:200
-
-};
-
-
-
-function newStar(){
-
-star.x=Math.random()*900+50;
-
-star.y=Math.random()*400+50;
-
-}
-
-
-
-
-// 자원
-
-let mineral={
-
-x:700,
-
-y:300
-
-};
-
-
-
-// 운석
-
-let asteroid={
-
-x:100,
-
-y:100,
-
-dx:4,
-
-dy:3,
-
-size:35
-
-};
-
-
-
-// 외계인
-
-let alien={
-
-x:800,
-
-y:150,
-
-hp:3
-
-};
-
-
-
-// 레이저
-
-let lasers=[];
-
-
-
-function laser(){
-
-
-lasers.push({
-
-x:ship.x,
-
-y:ship.y-30
-
-});
-
-
-}
-
-
-
-// 업데이트
-
-
-function update(){
-
-
-
-// 이동
+function moveShip(){
 
 
 if(keys["ArrowLeft"])
-
-ship.x-=ship.speed;
+x-=speed;
 
 
 if(keys["ArrowRight"])
-
-ship.x+=ship.speed;
+x+=speed;
 
 
 if(keys["ArrowUp"])
-
-ship.y-=ship.speed;
+y-=speed;
 
 
 if(keys["ArrowDown"])
-
-ship.y+=ship.speed;
-
+y+=speed;
 
 
 
-// 제한
+ship.style.left=x+"px";
 
-ship.x=Math.max(20,Math.min(980,ship.x));
-
-ship.y=Math.max(20,Math.min(630,ship.y));
+ship.style.top=y+"px";
 
 
 
+requestAnimationFrame(moveShip);
 
-
-// 운석 이동
-
-
-asteroid.x+=asteroid.dx;
-
-asteroid.y+=asteroid.dy;
-
-
-
-if(asteroid.x<0||asteroid.x>1000)
-
-asteroid.dx*=-1;
-
-
-if(asteroid.y<0||asteroid.y>650)
-
-asteroid.dy*=-1;
-
-
-
-
-// 레이저 이동
-
-
-lasers.forEach(l=>{
-
-l.y-=10;
-
-});
-
-
-
-
-// 별 먹기
-
-
-if(distance(ship,star)<40){
-
-score++;
-
-document.getElementById("score").innerHTML=score;
-
-newStar();
 
 }
 
 
+moveShip();
 
 
-// 자원 채굴
 
 
-if(distance(ship,mineral)<50){
 
-resource++;
+// 기능
+
+
+let resource=0;
+
+let coin=0;
+
+
+
+
+function mineResource(){
+
+
+resource+=10;
 
 document.getElementById("resource").innerHTML=resource;
 
 
-mineral.x=Math.random()*900;
-
-mineral.y=Math.random()*500;
+alert("⛏️ 자원 10개를 채굴했습니다!");
 
 }
 
 
 
+function upgradeShip(){
 
 
-// 운석 충돌
+if(resource>=20){
 
+resource-=20;
 
-if(distance(ship,asteroid)<50){
-
-
-ship.hp-=1;
-
-document.getElementById("hp").innerHTML=ship.hp;
-
+alert("🚀 우주선 업그레이드 완료!");
 
 }
 
+else{
 
-
-
-
-// 레이저와 외계인
-
-
-lasers.forEach(l=>{
-
-
-if(distance(l,alien)<40){
-
-
-alien.hp--;
-
-
-if(alien.hp<=0){
-
-
-score+=10;
-
-alien.x=Math.random()*900;
-
-alien.y=Math.random()*400;
-
-alien.hp=3;
-
+alert("자원이 부족합니다!");
 
 }
 
@@ -399,9 +540,21 @@ alien.hp=3;
 }
 
 
-});
 
 
+function explorePlanet(){
+
+
+alert("🌍 새로운 행성을 탐험합니다!");
+
+}
+
+
+
+function battleAlien(){
+
+
+alert("👽 외계 생명체 발견!\n전투 준비!");
 
 
 
@@ -409,185 +562,17 @@ alien.hp=3;
 
 
 
+function discoverGalaxy(){
 
-function distance(a,b){
 
+alert("🌌 새로운 은하 탐색 중...");
 
-return Math.hypot(
+coin+=100;
 
-a.x-b.x,
-
-a.y-b.y
-
-);
+document.getElementById("coin").innerHTML=coin;
 
 
 }
-
-
-
-
-
-// 그리기
-
-
-function draw(){
-
-
-ctx.clearRect(0,0,1000,650);
-
-
-
-// 별
-
-ctx.fillStyle="yellow";
-
-ctx.beginPath();
-
-ctx.arc(star.x,star.y,12,0,Math.PI*2);
-
-ctx.fill();
-
-
-
-
-// 광물
-
-ctx.fillStyle="lime";
-
-ctx.fillRect(
-
-mineral.x,
-
-mineral.y,
-
-25,
-
-25
-
-);
-
-
-
-
-// 운석
-
-ctx.fillStyle="gray";
-
-ctx.beginPath();
-
-ctx.arc(
-
-asteroid.x,
-
-asteroid.y,
-
-35,
-
-0,
-
-Math.PI*2
-
-);
-
-ctx.fill();
-
-
-
-
-// 외계인
-
-ctx.fillStyle="purple";
-
-ctx.beginPath();
-
-ctx.arc(
-
-alien.x,
-
-alien.y,
-
-25,
-
-0,
-
-Math.PI*2
-
-);
-
-ctx.fill();
-
-
-
-
-// 우주선
-
-
-ctx.fillStyle="cyan";
-
-ctx.beginPath();
-
-
-ctx.moveTo(ship.x,ship.y-30);
-
-ctx.lineTo(ship.x-25,ship.y+25);
-
-ctx.lineTo(ship.x+25,ship.y+25);
-
-
-ctx.closePath();
-
-ctx.fill();
-
-
-
-
-// 레이저
-
-
-ctx.fillStyle="red";
-
-
-lasers.forEach(l=>{
-
-
-ctx.fillRect(
-
-l.x-3,
-
-l.y,
-
-6,
-
-20
-
-);
-
-
-});
-
-
-
-}
-
-
-
-function loop(){
-
-
-update();
-
-draw();
-
-requestAnimationFrame(loop);
-
-
-}
-
-
-newStar();
-
-loop();
 
 
 
