@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>실시간 지진 및 판의 경계 지도</title>
+    <title>USGS 스타일 실시간 지진 지도</title>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
@@ -117,25 +117,7 @@
         #map {
             flex: 1;
             height: 100%;
-        }
-
-        /* 범례 스타일 */
-        .legend {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px 14px;
-            border-radius: 6px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            font-size: 0.8rem;
-            line-height: 1.5;
-            color: #333;
-        }
-        .legend-line {
-            display: inline-block;
-            width: 20px;
-            height: 3px;
-            background-color: #ff0000;
-            margin-right: 6px;
-            vertical-align: middle;
+            background-color: #e5e5e5; /* USGS 백그라운드 색상 */
         }
 
         /* 반응형 (모바일) */
@@ -173,53 +155,52 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // 1. 지도 초기화 (세계 지도 중심점)
-        const map = L.map('map').setView([20, 0], 2);
+        // 1. 지도 초기화 (USGS 기본 뷰포트)
+        const map = L.map('map', {
+            center: [20, 0],
+            zoom: 2,
+            minZoom: 2,
+            maxZoom: 10
+        });
 
-        // 2. 타일 레이어 추가
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '© OpenStreetMap contributors | Data: USGS, Hugo Ahlenius'
+        // 2. USGS 느낌의 회색톤 배경 타일 (CartoDB Positron No Labels)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
         }).addTo(map);
 
-        // 3. 판의 경계(Tectonic Plates) 데이터 로드 및 시각화
+        // 3. 사진과 동일한 USGS 정밀 판 경계 데이터 (GeoJSON)
         const PLATES_URL = 'https://raw.githubusercontent.com/fraxken/tectonicplates/master/GeoJSON/PB2002_boundaries.json';
 
         fetch(PLATES_URL)
-            .then(response => response.json())
+            .then(res => res.json())
             .then(plateData => {
                 L.geoJSON(plateData, {
-                    style: {
-                        color: '#e74c3c', // 이미지와 동일한 붉은색 선
-                        weight: 2,
-                        opacity: 0.85
+                    style: function(feature) {
+                        // 사진처럼 선명한 붉은색 판 경계선 표현
+                        return {
+                            color: '#d32f2f',  // 빨간색
+                            weight: 1.8,       // 선 두께
+                            opacity: 0.9       // 투명도
+                        };
                     }
                 }).addTo(map);
             })
-            .catch(err => console.error('판의 경계 데이터 불러오기 실패:', err));
+            .catch(err => console.error('판의 경계 로드 실패:', err));
 
-        // 4. 범례(Legend) 추가
-        const legend = L.control({ position: 'bottomright' });
-        legend.onAdd = function () {
-            const div = L.DomUtil.create('div', 'legend');
-            div.innerHTML = '<div><span class="legend-line"></span><b>판의 경계 (Tectonic Plates)</b></div>';
-            return div;
-        };
-        legend.addTo(map);
-
-        // 규모별 색상 반환 함수
+        // 지진 규모별 색상 (USGS 표준 칼라)
         function getColor(mag) {
-            return mag >= 6.0 ? '#d32f2f' :
-                   mag >= 5.0 ? '#f57c00' :
-                   mag >= 4.0 ? '#fbc02d' :
-                   mag >= 3.0 ? '#388e3c' : '#1976d2';
+            return mag >= 6.0 ? '#bd0026' :
+                   mag >= 5.0 ? '#f03b20' :
+                   mag >= 4.0 ? '#fd8d3c' :
+                   mag >= 3.0 ? '#feb24c' : '#fed976';
         }
 
-        // 지진 마커 및 정보 관리 객체
         const markers = {};
         const USGS_API_URL = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson';
 
-        // 5. 지진 데이터 가져오는 함수
+        // 4. 실시간 지진 데이터 수신 함수
         function fetchEarthquakeData() {
             fetch(USGS_API_URL)
                 .then(response => response.json())
@@ -227,38 +208,36 @@
                     const listContainer = document.getElementById('earthquake-list');
                     const features = data.features;
 
-                    // 헤더 상태 갱신
                     document.getElementById('summary-info').innerText = `최근 24시간 동안 ${features.length}건의 지진 발생`;
                     const now = new Date().toLocaleTimeString('ko-KR');
                     document.getElementById('last-updated').innerText = `최근 갱신: ${now}`;
 
-                    // 사이드바 목록 초기화
                     listContainer.innerHTML = '';
 
                     features.forEach(eq => {
                         const eqId = eq.id;
                         const props = eq.properties;
-                        const coords = eq.geometry.coordinates; // [lng, lat, depth]
+                        const coords = eq.geometry.coordinates;
                         const lat = coords[1];
                         const lng = coords[0];
                         const mag = props.mag;
                         const place = props.place;
                         const time = new Date(props.time).toLocaleString('ko-KR');
 
-                        // 마커가 없으면 새로 그려주고 기존에 있으면 그대로 유지
+                        // 지진 원형 마커 생성
                         if (!markers[eqId]) {
                             const marker = L.circleMarker([lat, lng], {
-                                radius: Math.max(mag * 2.5, 4),
+                                radius: Math.max(mag * 2.2, 3.5),
                                 fillColor: getColor(mag),
-                                color: '#ffffff',
+                                color: '#e65100',
                                 weight: 1,
-                                opacity: 1,
-                                fillOpacity: 0.8
+                                opacity: 0.9,
+                                fillOpacity: 0.85
                             }).addTo(map);
 
                             marker.bindPopup(`
-                                <div style="font-size: 0.9rem;">
-                                    <strong style="color:${getColor(mag)}; font-size: 1.1rem;">M ${mag}</strong><br>
+                                <div style="font-size: 0.85rem;">
+                                    <strong style="color:${getColor(mag)}; font-size: 1.05rem;">규모 ${mag}</strong><br>
                                     <b>위치:</b> ${place}<br>
                                     <b>시간:</b> ${time}<br>
                                     <b>깊이:</b> ${coords[2]} km
@@ -268,7 +247,7 @@
                             markers[eqId] = marker;
                         }
 
-                        // 사이드바 항목 생성
+                        // 목록 추가
                         const eqItem = document.createElement('div');
                         eqItem.className = 'eq-item';
                         eqItem.innerHTML = `
@@ -282,20 +261,18 @@
                         `;
 
                         eqItem.addEventListener('click', () => {
-                            map.flyTo([lat, lng], 6, { duration: 1.5 });
+                            map.flyTo([lat, lng], 6, { duration: 1.2 });
                             markers[eqId].openPopup();
                         });
 
                         listContainer.appendChild(eqItem);
                     });
                 })
-                .catch(error => console.error('지진 데이터 업데이트 실패:', error));
+                .catch(error => console.error('지진 데이터 불러오기 오류:', error));
         }
 
-        // 최초 1회 실행
+        // 최초 1회 실행 및 60초 주기 자동 갱신
         fetchEarthquakeData();
-
-        // 60초마다 실시간 지진 자동 업데이트
         setInterval(fetchEarthquakeData, 60000);
     </script>
 </body>
