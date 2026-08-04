@@ -4,7 +4,9 @@
 <head>
 
 <meta charset="UTF-8">
-<title>SPACE BATTLE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SPACE EXPLORER - Main Menu</title>
 
 
 <style>
@@ -13,39 +15,204 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
+    font-family:'Segoe UI', sans-serif;
 }
 
 
 body{
 
+    height:100vh;
     overflow:hidden;
-    background:black;
-    font-family:Arial, sans-serif;
-
-}
-
-
-canvas{
-
-    display:block;
 
     background:
-    radial-gradient(circle,#101d3a,#020617,#000);
-
-}
-
-
-
-#ui{
-
-    position:absolute;
-
-    top:20px;
-    left:20px;
+    radial-gradient(circle at center,#162447,#020617,#000);
 
     color:white;
 
-    font-size:22px;
+}
+
+
+/* 별 배경 */
+
+.star{
+
+    position:absolute;
+
+    background:white;
+
+    border-radius:50%;
+
+    animation:twinkle 2s infinite alternate;
+
+}
+
+
+@keyframes twinkle{
+
+    from{
+        opacity:0.2;
+    }
+
+    to{
+        opacity:1;
+    }
+
+}
+
+
+
+/* 제목 */
+
+.title{
+
+    position:absolute;
+
+    top:60px;
+
+    width:100%;
+
+    text-align:center;
+
+}
+
+
+.title h1{
+
+    font-size:70px;
+
+    color:#70eaff;
+
+    text-shadow:
+    0 0 20px cyan,
+    0 0 50px cyan;
+
+}
+
+
+
+.title p{
+
+    margin-top:20px;
+
+    font-size:25px;
+
+    color:#ddd;
+
+}
+
+
+
+/* 우주선 */
+
+.ship{
+
+    position:absolute;
+
+    left:50%;
+
+    top:45%;
+
+    transform:translate(-50%,-50%);
+
+    font-size:130px;
+
+    animation:float 3s infinite alternate;
+
+}
+
+
+
+@keyframes float{
+
+    from{
+        transform:translate(-50%,-50%);
+    }
+
+    to{
+        transform:translate(-50%,-60%);
+    }
+
+}
+
+
+
+/* 메뉴 */
+
+.menu{
+
+    position:absolute;
+
+    top:65%;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:20px;
+
+}
+
+
+
+button{
+
+    width:300px;
+
+    padding:18px;
+
+    border-radius:40px;
+
+    border:none;
+
+    background:#0284c7;
+
+    color:white;
+
+    font-size:24px;
+
+    cursor:pointer;
+
+    box-shadow:0 0 20px cyan;
+
+    transition:.3s;
+
+}
+
+
+
+button:hover{
+
+    transform:scale(1.1);
+
+    background:#0ea5e9;
+
+}
+
+
+
+/* 우주선 정보 */
+
+.status{
+
+    position:absolute;
+
+    top:30px;
+
+    right:30px;
+
+    background:rgba(0,0,0,.5);
+
+    border:1px solid cyan;
+
+    border-radius:15px;
+
+    padding:20px;
+
+    font-size:18px;
 
     line-height:35px;
 
@@ -53,66 +220,21 @@ canvas{
 
 
 
-#title{
+/* 제작자 */
+
+.creator{
 
     position:absolute;
 
-    width:100%;
+    bottom:20px;
 
-    top:15px;
+    width:100%;
 
     text-align:center;
 
-    color:#00eaff;
-
-    font-size:40px;
-
-    text-shadow:
-    0 0 20px cyan;
+    color:#aaa;
 
 }
-
-
-
-
-#gameOver{
-
-    display:none;
-
-    position:absolute;
-
-    width:100%;
-
-    height:100%;
-
-    background:rgba(0,0,0,.8);
-
-    color:white;
-
-    justify-content:center;
-
-    align-items:center;
-
-    flex-direction:column;
-
-    font-size:50px;
-
-}
-
-
-
-#restart{
-
-    margin-top:30px;
-
-    padding:15px 40px;
-
-    font-size:25px;
-
-    cursor:pointer;
-
-}
-
 
 
 </style>
@@ -124,27 +246,90 @@ canvas{
 <body>
 
 
-<div id="title">
 
-🚀 SPACE BATTLE
+<!-- 별 생성 -->
+
+<script>
+
+for(let i=0;i<200;i++){
+
+    let star=document.createElement("div");
+
+    star.className="star";
+
+    let size=Math.random()*3+1;
+
+    star.style.width=size+"px";
+
+    star.style.height=size+"px";
+
+    star.style.left=Math.random()*100+"%";
+
+    star.style.top=Math.random()*100+"%";
+
+    star.style.animationDuration=
+    (1+Math.random()*3)+"s";
+
+    document.body.appendChild(star);
+
+}
+
+</script>
+
+
+
+
+
+<div class="title">
+
+<h1>
+
+🚀 SPACE EXPLORER
+
+</h1>
+
+
+<p>
+
+미지의 우주에서 외계 생명체와 전투하라
+
+</p>
+
 
 </div>
 
 
 
-<div id="ui">
 
-❤️ HP :
-<span id="hp">
-100
-</span>
+<div class="ship">
+
+🚀
+
+</div>
+
+
+
+
+
+<div class="status">
+
+🚀 우주선 : SE-01
 
 <br>
 
-⭐ SCORE :
-<span id="score">
-0
-</span>
+❤️ 체력 : 100
+
+<br>
+
+🔫 레이저 : Lv.1
+
+<br>
+
+🛡 방어막 : Lv.1
+
+<br>
+
+⚡ 엔진 : Lv.1
 
 
 </div>
@@ -152,21 +337,42 @@ canvas{
 
 
 
-<div id="gameOver">
 
-GAME OVER
 
-<button id="restart">
 
-RESTART
+<div class="menu">
+
+
+<button onclick="startGame()">
+
+🌌 게임 시작
 
 </button>
 
+
+
+<button onclick="upgrade()">
+
+🚀 우주선 관리
+
+</button>
+
+
 </div>
 
 
 
-<canvas id="game" width="1200" height="700"></canvas>
+
+
+
+
+<div class="creator">
+
+Created by 우다흰
+
+</div>
+
+
 
 
 
@@ -174,726 +380,24 @@ RESTART
 <script>
 
 
-const canvas=
-document.getElementById("game");
+function startGame(){
 
-const ctx=
-canvas.getContext("2d");
-
-
-
-
-// 플레이어 우주선
-
-
-let player={
-
-x:150,
-
-y:350,
-
-width:50,
-
-height:50,
-
-speed:7,
-
-hp:100
-
-};
-
-
-
-
-// 키 상태
-
-
-let keys={};
-
-
-
-document.addEventListener(
-"keydown",
-e=>{
-
-
-keys[e.key]=true;
-
-
-if(e.code==="Space"){
-
-shoot();
-
-}
-
-
-});
-
-
-
-document.addEventListener(
-"keyup",
-e=>{
-
-keys[e.key]=false;
-
-});
-
-
-
-
-
-// 레이저
-
-
-let lasers=[];
-
-
-
-function shoot(){
-
-
-lasers.push({
-
-x:player.x+40,
-
-y:player.y,
-
-speed:12
-
-});
-
+    location.href="game.html";
 
 }
 
 
 
+function upgrade(){
 
-
-
-
-// 적 종류
-
-
-let enemies=[];
-
-
-
-const enemyTypes=[
-
-{
-name:"alien",
-hp:30,
-speed:3,
-damage:1
-},
-
-{
-name:"monster",
-hp:60,
-speed:2,
-damage:2
-},
-
-{
-name:"drone",
-hp:20,
-speed:5,
-damage:1
-}
-
-];
-
-
-
-
-
-// 보스
-
-
-let boss=null;
-
-
-
-
-
-
-let score=0;
-
-
-
-let gameRunning=true;
-
-
-
-
-
-
-
-// 적 생성
-
-
-function spawnEnemy(){
-
-
-if(!gameRunning)return;
-
-
-let type=
-enemyTypes[
-Math.floor(Math.random()*enemyTypes.length)
-];
-
-
-
-enemies.push({
-
-x:1200,
-
-y:Math.random()*650,
-
-hp:type.hp,
-
-speed:type.speed,
-
-damage:type.damage,
-
-size:40,
-
-type:type.name
-
-});
-
+    location.href="upgrade.html";
 
 }
-
-
-
-setInterval(
-spawnEnemy,
-1200
-);
-
-
-
-
-
-
-
-// 보스 생성
-
-
-function spawnBoss(){
-
-
-boss={
-
-x:950,
-
-y:300,
-
-hp:500,
-
-speed:2,
-
-size:100
-
-};
-
-
-}
-
-
-
-
-
-
-function update(){
-
-
-
-if(!gameRunning)
-return;
-
-
-
-
-// 이동
-
-
-if(keys["ArrowUp"])
-player.y-=player.speed;
-
-
-if(keys["ArrowDown"])
-player.y+=player.speed;
-
-
-if(keys["ArrowLeft"])
-player.x-=player.speed;
-
-
-if(keys["ArrowRight"])
-player.x+=player.speed;
-
-
-
-// 제한
-
-
-player.x=Math.max(
-0,
-Math.min(
-1150,
-player.x
-)
-);
-
-
-player.y=Math.max(
-0,
-Math.min(
-650,
-player.y
-)
-);
-
-
-
-
-
-
-// 레이저 이동
-
-
-lasers.forEach((l,i)=>{
-
-
-l.x+=l.speed;
-
-
-if(l.x>1200)
-
-lasers.splice(i,1);
-
-
-});
-
-
-
-
-
-
-
-// 적 이동
-
-
-enemies.forEach((e,i)=>{
-
-
-e.x-=e.speed;
-
-
-
-// 플레이어 충돌
-
-
-if(
-Math.abs(e.x-player.x)<50 &&
-Math.abs(e.y-player.y)<50
-){
-
-
-player.hp-=e.damage;
-
-
-enemies.splice(i,1);
-
-
-}
-
-
-
-
-
-// 레이저 충돌
-
-
-lasers.forEach((l,j)=>{
-
-
-if(
-Math.abs(l.x-e.x)<40 &&
-Math.abs(l.y-e.y)<40
-){
-
-
-e.hp-=10;
-
-
-lasers.splice(j,1);
-
-
-}
-
-
-});
-
-
-
-
-
-if(e.hp<=0){
-
-
-score+=100;
-
-
-enemies.splice(i,1);
-
-
-}
-
-
-});
-
-
-
-
-
-
-
-// 보스
-
-
-if(score>=1000 && !boss){
-
-spawnBoss();
-
-}
-
-
-
-
-
-if(boss){
-
-
-boss.x-=boss.speed/5;
-
-
-
-lasers.forEach((l,j)=>{
-
-
-if(
-Math.abs(l.x-boss.x)<60 &&
-Math.abs(l.y-boss.y)<60
-){
-
-
-boss.hp-=10;
-
-
-lasers.splice(j,1);
-
-
-}
-
-
-});
-
-
-
-if(
-Math.abs(boss.x-player.x)<80 &&
-Math.abs(boss.y-player.y)<80
-){
-
-
-player.hp-=2;
-
-
-}
-
-
-
-if(boss.hp<=0){
-
-
-alert("🏆 보스 처치! 우주를 지켰습니다!");
-
-location.reload();
-
-
-}
-
-
-
-}
-
-
-
-
-
-document.getElementById("hp").innerHTML=
-Math.floor(player.hp);
-
-
-document.getElementById("score").innerHTML=
-score;
-
-
-
-
-
-if(player.hp<=0){
-
-
-gameOver();
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function draw(){
-
-
-
-ctx.clearRect(
-0,
-0,
-1200,
-700
-);
-
-
-
-
-// 별 배경
-
-
-for(let i=0;i<100;i++){
-
-
-ctx.fillStyle="white";
-
-
-ctx.fillRect(
-
-Math.random()*1200,
-
-Math.random()*700,
-
-2,
-
-2
-
-);
-
-
-}
-
-
-
-
-
-// 플레이어
-
-
-ctx.font="60px Arial";
-
-ctx.fillText(
-
-"🚀",
-
-player.x,
-
-player.y
-
-);
-
-
-
-
-// 레이저
-
-
-ctx.fillStyle="red";
-
-
-lasers.forEach(l=>{
-
-
-ctx.fillRect(
-
-l.x,
-
-l.y,
-
-20,
-
-5
-
-);
-
-
-});
-
-
-
-
-
-
-// 적
-
-
-enemies.forEach(e=>{
-
-
-ctx.font="50px Arial";
-
-
-if(e.type==="alien")
-
-ctx.fillText(
-"👾",
-e.x,
-e.y
-);
-
-
-if(e.type==="monster")
-
-ctx.fillText(
-"👹",
-e.x,
-e.y
-);
-
-
-
-if(e.type==="drone")
-
-ctx.fillText(
-"🛸",
-e.x,
-e.y
-);
-
-
-
-});
-
-
-
-
-
-
-// 보스
-
-
-if(boss){
-
-
-ctx.font="100px Arial";
-
-
-ctx.fillText(
-"👑",
-boss.x,
-boss.y
-);
-
-
-
-ctx.fillStyle="red";
-
-ctx.fillRect(
-
-800,
-
-50,
-
-boss.hp/2,
-
-20
-
-);
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-function loop(){
-
-
-update();
-
-draw();
-
-
-requestAnimationFrame(loop);
-
-
-}
-
-
-
-
-function gameOver(){
-
-
-gameRunning=false;
-
-
-document.getElementById(
-"gameOver"
-).style.display="flex";
-
-
-}
-
-
-
-
-document.getElementById(
-"restart"
-).onclick=function(){
-
-
-location.reload();
-
-
-};
-
-
-
-
-loop();
 
 
 
 </script>
+
 
 
 </body>
