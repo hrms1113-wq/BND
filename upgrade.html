@@ -33,7 +33,7 @@ body{
 
 
 
-/* 별 배경 */
+/* 별 */
 
 .star{
 
@@ -52,15 +52,14 @@ body{
 
 
 
-.container{
 
+.container{
 
     position:absolute;
 
     width:100%;
 
     height:100%;
-
 
     display:flex;
 
@@ -70,110 +69,93 @@ body{
 
     padding-top:40px;
 
-
 }
+
 
 
 
 
 .title{
 
-
     font-size:55px;
 
     color:#70eaff;
-
 
     text-shadow:
 
     0 0 20px cyan;
 
-
 }
+
 
 
 
 
 .ship{
 
-
     margin-top:20px;
-
 
     font-size:90px;
 
-
 }
+
 
 
 
 
 .crystal{
 
-
     margin-top:20px;
-
 
     font-size:28px;
 
-
     color:#00ffff;
 
-
 }
+
 
 
 
 
 .upgradeBox{
 
-
     margin-top:30px;
-
 
     display:flex;
 
-
     gap:25px;
 
-
 }
+
 
 
 
 
 .card{
 
-
     width:260px;
-
 
     padding:25px;
 
-
     background:rgba(0,20,50,.8);
-
 
     border:2px solid cyan;
 
-
     border-radius:20px;
 
-
     text-align:center;
-
 
     box-shadow:
 
     0 0 20px rgba(0,255,255,.4);
 
-
 }
 
 
 
-.card h2{
 
+
+.card h2{
 
     color:#70eaff;
 
@@ -181,8 +163,9 @@ body{
 
 
 
-.level{
 
+
+.level{
 
     font-size:25px;
 
@@ -192,73 +175,63 @@ body{
 
 
 
-button{
 
+
+button{
 
     margin-top:20px;
 
-
     padding:12px 30px;
-
 
     border:none;
 
-
     border-radius:25px;
-
 
     cursor:pointer;
 
-
     background:#008cff;
-
 
     color:white;
 
-
     font-size:18px;
 
-
 }
+
+
 
 
 
 button:hover{
 
-
     transform:scale(1.1);
-
 
     box-shadow:0 0 20px cyan;
 
-
 }
+
+
 
 
 
 .home{
 
-
     margin-top:50px;
-
 
     background:#333;
 
-
 }
+
+
 
 
 
 .info{
 
-
     margin-top:10px;
-
 
     color:#aaa;
 
 }
-
 
 
 </style>
@@ -271,30 +244,23 @@ button:hover{
 
 
 
-
 <script>
 
 // 별 생성
 
 for(let i=0;i<120;i++){
 
-
 let star=document.createElement("div");
 
-
 star.className="star";
-
 
 star.style.left=Math.random()*100+"%";
 
 star.style.top=Math.random()*100+"%";
 
-
 document.body.appendChild(star);
 
-
 }
-
 
 
 </script>
@@ -322,6 +288,7 @@ document.body.appendChild(star);
 🚀
 
 </div>
+
 
 
 
@@ -378,9 +345,7 @@ LEVEL
 </p>
 
 
-<p class="info">
-
-다음 강화 비용 💎100
+<p class="info" id="laserCost">
 
 </p>
 
@@ -393,8 +358,6 @@ LEVEL
 
 
 </div>
-
-
 
 
 
@@ -436,9 +399,7 @@ LEVEL
 </p>
 
 
-<p class="info">
-
-다음 강화 비용 💎150
+<p class="info" id="shieldCost">
 
 </p>
 
@@ -451,11 +412,6 @@ LEVEL
 
 
 </div>
-
-
-
-
-
 
 
 <div class="card">
@@ -492,9 +448,7 @@ LEVEL
 </p>
 
 
-<p class="info">
-
-다음 강화 비용 💎100
+<p class="info" id="engineCost">
 
 </p>
 
@@ -511,6 +465,8 @@ LEVEL
 
 
 </div>
+
+
 
 
 
@@ -533,10 +489,14 @@ LEVEL
 
 
 
+
+
 <script>
 
 
-// 저장 데이터
+// ======================
+// 데이터 불러오기
+// ======================
 
 
 let data={
@@ -562,11 +522,84 @@ engine:
 Number(localStorage.getItem("engine")) || 1
 
 
+
 };
 
 
 
 
+
+
+
+// ======================
+// 업그레이드 비용
+// ======================
+
+
+const cost={
+
+
+
+laser:[
+
+0,
+
+100,
+
+250,
+
+500,
+
+900
+
+],
+
+
+
+
+shield:[
+
+0,
+
+120,
+
+300,
+
+600,
+
+1000
+
+],
+
+
+
+
+engine:[
+
+0,
+
+100,
+
+250,
+
+550,
+
+1100
+
+]
+
+
+
+};
+
+
+
+
+
+
+
+
+// 저장
 
 
 function save(){
@@ -603,19 +636,30 @@ data.engine
 
 
 
+
+
+
+
+// 화면 업데이트
+
+
 function update(){
+
 
 
 document.getElementById("crystal").innerHTML=
 data.crystal;
 
 
+
 document.getElementById("laserLevel").innerHTML=
 data.laser;
 
 
+
 document.getElementById("shieldLevel").innerHTML=
 data.shield;
+
 
 
 document.getElementById("engineLevel").innerHTML=
@@ -624,121 +668,185 @@ data.engine;
 
 
 
+
+
+// 능력치
+
+
 document.getElementById("laserPower").innerHTML=
+
 data.laser*10;
 
 
 
 document.getElementById("shieldPower").innerHTML=
+
 (data.shield-1)*10;
 
 
 
 document.getElementById("enginePower").innerHTML=
+
 7+(data.engine-1)*2;
 
 
 
+
+
+
+
+
+// 비용 표시
+
+
+document.getElementById("laserCost").innerHTML=
+
+getCost("laser");
+
+
+
+document.getElementById("shieldCost").innerHTML=
+
+getCost("shield");
+
+
+
+document.getElementById("engineCost").innerHTML=
+
+getCost("engine");
+
+
+
 }
 
 
 
 
+
+
+
+
+
+function getCost(type){
+
+
+let lv=data[type];
+
+
+
+if(lv>=5){
+
+return "⭐ MAX LEVEL";
+
+}
+
+
+
+return "다음 강화 비용 💎 "+cost[type][lv];
+
+
+}
+
+
+
+
+
+
+
+
+
+// ======================
+// 강화 함수
+// ======================
 
 
 function upgradeLaser(){
 
-
-if(data.crystal>=100){
-
-
-data.crystal-=100;
-
-
-data.laser++;
-
-
-save();
-
-update();
-
+upgrade("laser");
 
 }
-
-else{
-
-alert("크리스탈이 부족합니다!");
-
-}
-
-
-}
-
-
 
 
 
 function upgradeShield(){
 
-
-if(data.crystal>=150){
-
-
-data.crystal-=150;
-
-
-data.shield++;
-
-
-save();
-
-update();
-
+upgrade("shield");
 
 }
-
-else{
-
-alert("크리스탈이 부족합니다!");
-
-}
-
-
-}
-
-
-
-
 
 
 
 function upgradeEngine(){
 
+upgrade("engine");
 
-if(data.crystal>=100){
-
-
-data.crystal-=100;
+}
 
 
-data.engine++;
+
+
+
+
+
+function upgrade(type){
+
+
+
+if(data[type]>=5){
+
+
+alert("최대 레벨입니다!");
+
+return;
+
+
+}
+
+
+
+
+
+let price=cost[type][data[type]];
+
+
+
+
+
+
+if(data.crystal>=price){
+
+
+
+data.crystal-=price;
+
+
+
+data[type]++;
+
 
 
 save();
 
+
 update();
+
 
 
 }
 
 else{
 
+
 alert("크리스탈이 부족합니다!");
 
 }
 
 
+
 }
+
+
+
 
 
 
@@ -753,6 +861,8 @@ location.href="main.html";
 
 
 }
+
+
 
 
 
