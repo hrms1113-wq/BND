@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>실시간 지진 현황 지도 (USGS 연동)</title>
+    <title>실시간 지진 현황 지도 (자동 업데이트)</title>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
@@ -47,6 +47,18 @@
         .header p {
             font-size: 0.8rem;
             color: #bdc3c7;
+            margin-top: 2px;
+        }
+
+        .update-tag {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 2px 6px;
+            background: #27ae60;
+            color: #fff;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            font-weight: bold;
         }
 
         .eq-list {
@@ -128,7 +140,8 @@
     <div id="sidebar">
         <div class="header">
             <h2>USGS 실시간 지진 현황</h2>
-            <p id="summary-info">최근 24시간 동안의 M2.5+ 지진</p>
+            <p id="summary-info">데이터 불러오는 중...</p>
+            <div id="last-updated" class="update-tag">실시간 수신 중</div>
         </div>
         <div class="eq-list" id="earthquake-list">
             <!-- JS로 항목 삽입됨 -->
@@ -139,19 +152,18 @@
     <div id="map"></div>
 
     <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // 1. 지도 초기화 (세계 지도 중심점)
         const map = L.map('map').setView([20, 0], 2);
 
-        // 2. 배경 지도 타일 추가 (OpenStreetMap)
+        // 2. 타일 레이어 추가
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: '© OpenStreetMap contributors | Data: USGS'
         }).addTo(map);
 
-        // 지진 규모별 색상 반환 함수
+        // 색상 지정 함수
         function getColor(mag) {
             return mag >= 6.0 ? '#d32f2f' :
                    mag >= 5.0 ? '#f57c00' :
@@ -159,76 +171,89 @@
                    mag >= 3.0 ? '#388e3c' : '#1976d2';
         }
 
-        // 지진 마커 저장 객체
+        // 마커 및 UI 관리를 위한 객체
         const markers = {};
-
-        // 3. USGS 실시간 GeoJSON 데이터 호출 (지난 24시간 규모 2.5 이상)
         const USGS_API_URL = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson';
 
-        fetch(USGS_API_URL)
-            .then(response => response.json())
-            .then(data => {
-                const listContainer = document.getElementById('earthquake-list');
-                const features = data.features;
+        // 3. 지진 데이터 가져오는 함수
+        function fetchEarthquakeData() {
+            fetch(USGS_API_URL)
+                .then(response => response.json())
+                .then(data => {
+                    const listContainer = document.getElementById('earthquake-list');
+                    const features = data.features;
 
-                document.getElementById('summary-info').innerText = `최근 24시간 동안 ${features.length}건의 지진 발생`;
+                    // 헤더 상태 갱신
+                    document.getElementById('summary-info').innerText = `최근 24시간 동안 ${features.length}건의 지진 발생`;
+                    const now = new Date().toLocaleTimeString('ko-KR');
+                    document.getElementById('last-updated').innerText = `최근 갱신: ${now}`;
 
-                features.forEach(eq => {
-                    const props = eq.properties;
-                    const coords = eq.geometry.coordinates; // [lng, lat, depth]
-                    const lat = coords[1];
-                    const lng = coords[0];
-                    const mag = props.mag;
-                    const place = props.place;
-                    const time = new Date(props.time).toLocaleString('ko-KR');
+                    // 사이드바 목록 초기화
+                    listContainer.innerHTML = '';
 
-                    // A. 지도에 원형 마커 생성
-                    const marker = L.circleMarker([lat, lng], {
-                        radius: Math.max(mag * 2.5, 4), // 규모에 따른 마커 크기
-                        fillColor: getColor(mag),
-                        color: '#ffffff',
-                        weight: 1,
-                        opacity: 1,
-                        fillOpacity: 0.8
-                    }).addTo(map);
+                    features.forEach(eq => {
+                        const eqId = eq.id;
+                        const props = eq.properties;
+                        const coords = eq.geometry.coordinates; // [lng, lat, depth]
+                        const lat = coords[1];
+                        const lng = coords[0];
+                        const mag = props.mag;
+                        const place = props.place;
+                        const time = new Date(props.time).toLocaleString('ko-KR');
 
-                    // 마커 팝업 설정
-                    marker.bindPopup(`
-                        <div style="font-size: 0.9rem;">
-                            <strong style="color:${getColor(mag)}; font-size: 1.1rem;">M ${mag}</strong><br>
-                            <b>위치:</b> ${place}<br>
-                            <b>시간:</b> ${time}<br>
-                            <b>깊이:</b> ${coords[2]} km
-                        </div>
-                    `);
+                        // 이미 존재하는 마커가 없으면 새로 생성 (중복 그리기 방지)
+                        if (!markers[eqId]) {
+                            const marker = L.circleMarker([lat, lng], {
+                                radius: Math.max(mag * 2.5, 4),
+                                fillColor: getColor(mag),
+                                color: '#ffffff',
+                                weight: 1,
+                                opacity: 1,
+                                fillOpacity: 0.8
+                            }).addTo(map);
 
-                    markers[eq.id] = { marker, lat, lng };
+                            marker.bindPopup(`
+                                <div style="font-size: 0.9rem;">
+                                    <strong style="color:${getColor(mag)}; font-size: 1.1rem;">M ${mag}</strong><br>
+                                    <b>위치:</b> ${place}<br>
+                                    <b>시간:</b> ${time}<br>
+                                    <b>깊이:</b> ${coords[2]} km
+                                </div>
+                            `);
 
-                    // B. 좌측 사이드바 리스트 생성
-                    const eqItem = document.createElement('div');
-                    eqItem.className = 'eq-item';
-                    eqItem.innerHTML = `
-                        <div class="mag-badge" style="background-color: ${getColor(mag)};">
-                            ${mag ? mag.toFixed(1) : 'N/A'}
-                        </div>
-                        <div class="eq-info">
-                            <div class="eq-title">${place}</div>
-                            <div class="eq-time">${time}</div>
-                        </div>
-                    `;
+                            markers[eqId] = marker;
+                        }
 
-                    // 리스트 클릭 시 해당 지진 위치로 지도 이동 및 팝업 표시
-                    eqItem.addEventListener('click', () => {
-                        map.flyTo([lat, lng], 6, { duration: 1.5 });
-                        marker.openPopup();
+                        // 사이드바 엘리먼트 새로 채우기
+                        const eqItem = document.createElement('div');
+                        eqItem.className = 'eq-item';
+                        eqItem.innerHTML = `
+                            <div class="mag-badge" style="background-color: ${getColor(mag)};">
+                                ${mag ? mag.toFixed(1) : 'N/A'}
+                            </div>
+                            <div class="eq-info">
+                                <div class="eq-title">${place}</div>
+                                <div class="eq-time">${time}</div>
+                            </div>
+                        `;
+
+                        eqItem.addEventListener('click', () => {
+                            map.flyTo([lat, lng], 6, { duration: 1.5 });
+                            markers[eqId].openPopup();
+                        });
+
+                        listContainer.appendChild(eqItem);
                     });
+                })
+                .catch(error => console.error('데이터 업데이트 실패:', error));
+        }
 
-                    listContainer.appendChild(eqItem);
-                });
-            })
-            .catch(error => {
-                console.error('지진 데이터를 불러오는데 실패했습니다:', error);
-            });
+        // 최초 1회 실행
+        fetchEarthquakeData();
+
+        // 60초(60,000ms)마다 데이터 자동 주기적 갱신
+        // USGS 서버 본체도 약 1~5분 단위로 갱신되므로 60초가 가장 적절합니다.
+        setInterval(fetchEarthquakeData, 60000);
     </script>
 </body>
 </html>
