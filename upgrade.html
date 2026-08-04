@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+
+<meta charset="UTF-8">
+<title>SPACE GARAGE - Upgrade</title>
+
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+
+body{
+
+    height:100vh;
+
+    background:
+    radial-gradient(circle at center,#16345c,#020617,#000);
+
+    font-family:Arial,sans-serif;
+
+    color:white;
+
+    overflow:hidden;
+
+}
+
+
+
+/* 별 배경 */
+
+.star{
+
+    position:absolute;
+
+    width:3px;
+
+    height:3px;
+
+    background:white;
+
+    border-radius:50%;
+
+}
+
+
+
+
+.container{
+
+
+    position:absolute;
+
+    width:100%;
+
+    height:100%;
+
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    padding-top:40px;
+
+
+}
+
+
+
+
+.title{
+
+
+    font-size:55px;
+
+    color:#70eaff;
+
+
+    text-shadow:
+
+    0 0 20px cyan;
+
+
+}
+
+
+
+
+.ship{
+
+
+    margin-top:20px;
+
+
+    font-size:90px;
+
+
+}
+
+
+
+
+.crystal{
+
+
+    margin-top:20px;
+
+
+    font-size:28px;
+
+
+    color:#00ffff;
+
+
+}
+
+
+
+
+.upgradeBox{
+
+
+    margin-top:30px;
+
+
+    display:flex;
+
+
+    gap:25px;
+
+
+}
+
+
+
+
+.card{
+
+
+    width:260px;
+
+
+    padding:25px;
+
+
+    background:rgba(0,20,50,.8);
+
+
+    border:2px solid cyan;
+
+
+    border-radius:20px;
+
+
+    text-align:center;
+
+
+    box-shadow:
+
+    0 0 20px rgba(0,255,255,.4);
+
+
+}
+
+
+
+.card h2{
+
+
+    color:#70eaff;
+
+}
+
+
+
+.level{
+
+
+    font-size:25px;
+
+    margin:15px;
+
+}
+
+
+
+button{
+
+
+    margin-top:20px;
+
+
+    padding:12px 30px;
+
+
+    border:none;
+
+
+    border-radius:25px;
+
+
+    cursor:pointer;
+
+
+    background:#008cff;
+
+
+    color:white;
+
+
+    font-size:18px;
+
+
+}
+
+
+
+button:hover{
+
+
+    transform:scale(1.1);
+
+
+    box-shadow:0 0 20px cyan;
+
+
+}
+
+
+
+.home{
+
+
+    margin-top:50px;
+
+
+    background:#333;
+
+
+}
+
+
+
+.info{
+
+
+    margin-top:10px;
+
+
+    color:#aaa;
+
+}
+
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+
+
+<script>
+
+// 별 생성
+
+for(let i=0;i<120;i++){
+
+
+let star=document.createElement("div");
+
+
+star.className="star";
+
+
+star.style.left=Math.random()*100+"%";
+
+star.style.top=Math.random()*100+"%";
+
+
+document.body.appendChild(star);
+
+
+}
+
+
+
+</script>
+
+
+
+
+
+
+<div class="container">
+
+
+
+<div class="title">
+
+🚀 SPACE GARAGE
+
+</div>
+
+
+
+
+<div class="ship">
+
+🚀
+
+</div>
+
+
+
+
+<div class="crystal">
+
+💎 보유 크리스탈 :
+
+<span id="crystal">
+
+</span>
+
+</div>
+
+
+
+
+
+<div class="upgradeBox">
+
+
+
+<div class="card">
+
+
+<h2>
+🔫 LASER
+</h2>
+
+
+<div class="level">
+
+LEVEL
+
+<span id="laserLevel">
+
+1
+
+</span>
+
+</div>
+
+
+<p>
+
+공격력 :
+
+<span id="laserPower">
+
+10
+
+</span>
+
+</p>
+
+
+<p class="info">
+
+다음 강화 비용 💎100
+
+</p>
+
+
+<button onclick="upgradeLaser()">
+
+강화하기
+
+</button>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="card">
+
+
+<h2>
+🛡 SHIELD
+</h2>
+
+
+<div class="level">
+
+LEVEL
+
+<span id="shieldLevel">
+
+1
+
+</span>
+
+</div>
+
+
+<p>
+
+방어력 :
+
+<span id="shieldPower">
+
+0
+
+</span>
+
+%
+
+</p>
+
+
+<p class="info">
+
+다음 강화 비용 💎150
+
+</p>
+
+
+<button onclick="upgradeShield()">
+
+강화하기
+
+</button>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="card">
+
+
+<h2>
+🚀 ENGINE
+</h2>
+
+
+<div class="level">
+
+LEVEL
+
+<span id="engineLevel">
+
+1
+
+</span>
+
+</div>
+
+
+<p>
+
+속도 :
+
+<span id="enginePower">
+
+7
+
+</span>
+
+</p>
+
+
+<p class="info">
+
+다음 강화 비용 💎100
+
+</p>
+
+
+<button onclick="upgradeEngine()">
+
+강화하기
+
+</button>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+<button class="home" onclick="goHome()">
+
+🏠 메인 화면으로
+
+</button>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+<script>
+
+
+// 저장 데이터
+
+
+let data={
+
+
+crystal:
+
+Number(localStorage.getItem("crystal")) || 500,
+
+
+laser:
+
+Number(localStorage.getItem("laser")) || 1,
+
+
+shield:
+
+Number(localStorage.getItem("shield")) || 1,
+
+
+engine:
+
+Number(localStorage.getItem("engine")) || 1
+
+
+};
+
+
+
+
+
+
+function save(){
+
+
+localStorage.setItem(
+"crystal",
+data.crystal
+);
+
+
+localStorage.setItem(
+"laser",
+data.laser
+);
+
+
+localStorage.setItem(
+"shield",
+data.shield
+);
+
+
+localStorage.setItem(
+"engine",
+data.engine
+);
+
+
+
+}
+
+
+
+
+
+function update(){
+
+
+document.getElementById("crystal").innerHTML=
+data.crystal;
+
+
+document.getElementById("laserLevel").innerHTML=
+data.laser;
+
+
+document.getElementById("shieldLevel").innerHTML=
+data.shield;
+
+
+document.getElementById("engineLevel").innerHTML=
+data.engine;
+
+
+
+
+document.getElementById("laserPower").innerHTML=
+data.laser*10;
+
+
+
+document.getElementById("shieldPower").innerHTML=
+(data.shield-1)*10;
+
+
+
+document.getElementById("enginePower").innerHTML=
+7+(data.engine-1)*2;
+
+
+
+}
+
+
+
+
+
+
+function upgradeLaser(){
+
+
+if(data.crystal>=100){
+
+
+data.crystal-=100;
+
+
+data.laser++;
+
+
+save();
+
+update();
+
+
+}
+
+else{
+
+alert("크리스탈이 부족합니다!");
+
+}
+
+
+}
+
+
+
+
+
+function upgradeShield(){
+
+
+if(data.crystal>=150){
+
+
+data.crystal-=150;
+
+
+data.shield++;
+
+
+save();
+
+update();
+
+
+}
+
+else{
+
+alert("크리스탈이 부족합니다!");
+
+}
+
+
+}
+
+
+
+
+
+
+
+function upgradeEngine(){
+
+
+if(data.crystal>=100){
+
+
+data.crystal-=100;
+
+
+data.engine++;
+
+
+save();
+
+update();
+
+
+}
+
+else{
+
+alert("크리스탈이 부족합니다!");
+
+}
+
+
+}
+
+
+
+
+
+
+
+function goHome(){
+
+
+location.href="main.html";
+
+
+}
+
+
+
+
+
+update();
+
+
+
+</script>
+
+
+
+</body>
+
+</html>
